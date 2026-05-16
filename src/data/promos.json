@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "title_id": "Cashback Belanja 50%",
+    "title_en": "50% Shopping Cashback",
+    "desc_id": "Nikmati kemudahan bertransaksi dengan kartu MiBANK dan dapatkan cashback melimpah.",
+    "desc_en": "Enjoy easy transactions with MiBANK cards and get abundant cashback.",
+    "image": "/images/promo1.png"
+  },
+  {
+    "id": 2,
+    "title_id": "Bunga Tabungan 6% p.a",
+    "title_en": "6% p.a Savings Interest",
+    "desc_id": "Simpan dana Anda dan nikmati pertumbuhan finansial yang optimal bersama MiBANK.",
+    "desc_en": "Save your funds and enjoy optimal financial growth with MiBANK.",
+    "image": "/images/promo2.png"
+  },
+  {
+    "id": 3,
+    "title_id": "Kredit Usaha Rakyat",
+    "title_en": "People's Business Credit",
+    "desc_id": "Dukungan modal untuk pengusaha Indonesia dengan proses cepat dan bunga ringan.",
+    "desc_en": "Capital support for Indonesian entrepreneurs with fast process and low interest.",
+    "image": "/images/promo3.png"
+  }
+]

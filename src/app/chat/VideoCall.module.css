@@ -1,0 +1,496 @@
+.preCall {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  max-width: 700px;
+  margin: 40px auto;
+}
+
+.secureBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #e6f4ea;
+  color: #1e8e3e;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 25px;
+}
+
+.shieldIcon {
+  font-size: 16px;
+}
+
+.preCall h2 {
+  font-size: 32px;
+  margin-bottom: 15px;
+  color: var(--primary-color);
+}
+
+.preCall p {
+  color: var(--text-light);
+  margin-bottom: 40px;
+  font-size: 16px;
+}
+
+.featureList {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.feature span {
+  font-size: 30px;
+}
+
+.feature p {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+/* Video Container */
+.videoContainer {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  background: #1a1a1a;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  display: flex;
+}
+
+.withChat .videoSection {
+  width: 70%;
+}
+
+.videoSection {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: width 0.3s ease;
+}
+
+.remoteView {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remotePlaceholder {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.mockVideo {
+  width: 100%;
+  height: 100%;
+}
+
+.mockVideo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.specialistInfo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+  padding: 10px 15px;
+  border-radius: 12px;
+  color: white;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--secondary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.specialistInfo h4 {
+  font-size: 14px;
+  color: white;
+  margin: 0;
+}
+
+.specialistInfo p {
+  font-size: 12px;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.connecting {
+  text-align: center;
+  color: white;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255,255,255,0.1);
+  border-left-color: var(--secondary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.securityOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.watermarkTL, .watermarkTR, .watermarkBL, .watermarkBR {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.15);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 20px;
+}
+
+.watermarkTL { top: 0; left: 0; }
+.watermarkTR { top: 0; right: 0; }
+.watermarkBL { bottom: 80px; left: 0; }
+.watermarkBR { bottom: 80px; right: 0; }
+
+.shareShield {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 20px 40px;
+  border-radius: 15px;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  backdrop-filter: blur(5px);
+}
+
+.shieldPulse {
+  width: 40px;
+  height: 40px;
+  background: #1e8e3e;
+  border-radius: 50%;
+  box-shadow: 0 0 20px #1e8e3e;
+  animation: shieldPulse 2s infinite;
+}
+
+@keyframes shieldPulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(30, 142, 62, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(30, 142, 62, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(30, 142, 62, 0); }
+}
+
+.shareShield span {
+  color: #1e8e3e;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+/* Local View */
+.localView {
+  position: absolute;
+  bottom: 100px;
+  right: 20px;
+  width: 200px;
+  height: 150px;
+  background: #333;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.2);
+  z-index: 40;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transition: all 0.5s ease;
+}
+
+.sharingView {
+  width: 320px;
+  height: 200px;
+  border-color: #1e8e3e;
+}
+
+/* Chat Section */
+.chatSection {
+  width: 30%;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #eee;
+  z-index: 50;
+}
+
+.chatHeader {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chatHeader h3 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.closeChat {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+}
+
+.messageList {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.messageItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.msgBubble {
+  max-width: 85%;
+  padding: 10px 15px;
+  border-radius: 15px;
+  font-size: 14px;
+  position: relative;
+}
+
+.csMsg .msgBubble {
+  background: #f1f3f5;
+  color: #333;
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+
+.userMsg .msgBubble {
+  background: var(--primary-color);
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+}
+
+.msgTime {
+  display: block;
+  font-size: 10px;
+  margin-top: 5px;
+  opacity: 0.6;
+}
+
+.chatInput {
+  padding: 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 10px;
+}
+
+.chatInput input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+}
+
+.chatInput button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.localView video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.localName {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(0,0,0,0.5);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  color: white;
+}
+
+/* Controls */
+.controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  z-index: 30;
+}
+
+.callInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  background: #ff4d4d;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.actionButtons {
+  display: flex;
+  gap: 15px;
+}
+
+.iconBtn {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconBtn:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+}
+
+.iconBtn.active {
+  background: #ff4d4d;
+}
+
+.endCallBtn {
+  background: #ff4d4d;
+  transform: rotate(135deg);
+}
+
+.endCallBtn:hover {
+  background: #cc0000;
+}
+
+.securityTag {
+  color: #1e8e3e;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.securityToast {
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: #1e8e3e;
+  padding: 15px 30px;
+  border-radius: 10px;
+  z-index: 10000;
+  font-weight: 800;
+  border-left: 5px solid #1e8e3e;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+  animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+  from { top: -50px; opacity: 0; }
+  to { top: 100px; opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .videoContainer {
+    height: 100vh;
+    border-radius: 0;
+  }
+  
+  .localView {
+    width: 120px;
+    height: 160px;
+    bottom: 100px;
+  }
+  
+  .sharingView {
+    width: 200px;
+    height: 120px;
+  }
+  
+  .featureList {
+    gap: 20px;
+  }
+}

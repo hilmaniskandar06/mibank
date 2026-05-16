@@ -1,0 +1,9 @@
+[
+  {
+    "id": "admin-1",
+    "name": "Admin MiBANK",
+    "email": "admin@mibank.com",
+    "password": "admin123",
+    "role": "admin"
+  }
+]
