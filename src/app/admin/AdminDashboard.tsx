@@ -169,7 +169,28 @@ export default function AdminDashboard({
             <div className={styles.header}>
               <h2>Pengaturan Website</h2>
             </div>
-            <form action={updateSettings}>
+            {/* Simple status feedback */}
+            <div id="status-message" style={{ marginBottom: '20px', padding: '15px', borderRadius: '8px', display: 'none' }}></div>
+            
+            <form 
+              action={async (formData) => {
+                const res = await updateSettings(formData);
+                const msg = document.getElementById('status-message');
+                if (msg) {
+                  msg.style.display = 'block';
+                  if (res?.success) {
+                    msg.innerText = '✅ Pengaturan berhasil diperbarui!';
+                    msg.style.background = '#d4edda';
+                    msg.style.color = '#155724';
+                  } else {
+                    msg.innerText = '❌ Error: ' + (res?.error || 'Gagal memperbarui');
+                    msg.style.background = '#f8d7da';
+                    msg.style.color = '#721c24';
+                  }
+                  setTimeout(() => { msg.style.display = 'none'; }, 5000);
+                }
+              }}
+            >
               <div className={styles.card}>
                 <h3>Konten Hero Section</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
@@ -189,6 +210,11 @@ export default function AdminDashboard({
                 <div className={styles.formGroup}>
                   <label>Deskripsi Hero (EN)</label>
                   <textarea name="hero_desc_en" rows={2} defaultValue={initialSettings.hero.desc_en} />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Gambar Hero (Upload Baru)</label>
+                  <input type="file" name="hero_image" accept="image/*" />
+                  <p style={{ fontSize: '12px', color: '#888', marginTop: '5px' }}>Current: {initialSettings.images?.hero}</p>
                 </div>
               </div>
 
@@ -212,6 +238,29 @@ export default function AdminDashboard({
                   <div className={styles.formGroup}>
                     <label>Misi (EN)</label>
                     <textarea name="misi_en" rows={2} defaultValue={initialSettings.about.misi_en} />
+                  </div>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Gambar Company / Gedung (Upload Baru)</label>
+                  <input type="file" name="about_image" accept="image/*" />
+                  <p style={{ fontSize: '12px', color: '#888', marginTop: '5px' }}>Current: {initialSettings.images?.about}</p>
+                </div>
+              </div>
+
+              <div className={styles.card}>
+                <h3>Informasi Kontak (Footer)</h3>
+                <div className={styles.formGroup}>
+                  <label>Alamat Kantor</label>
+                  <input name="contact_address" defaultValue={initialSettings.contact?.address} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div className={styles.formGroup}>
+                    <label>Nomor Telepon</label>
+                    <input name="contact_phone" defaultValue={initialSettings.contact?.phone} />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Email Support</label>
+                    <input name="contact_email" defaultValue={initialSettings.contact?.email} />
                   </div>
                 </div>
               </div>

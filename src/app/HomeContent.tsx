@@ -24,7 +24,7 @@ export default function HomeContent({ initialPromos, settings }: { initialPromos
           </div>
         </div>
         <div className={styles.heroImage}>
-          <img src="/images/hero.png" alt="MiBANK Digital Banking" />
+          <img src={settings.images?.hero || "/images/hero.png"} alt="MiBANK Digital Banking" />
         </div>
       </section>
 
@@ -95,7 +95,7 @@ export default function HomeContent({ initialPromos, settings }: { initialPromos
               </div>
             </div>
             <div className={styles.aboutImg}>
-              <img src="/images/company.jpg" alt="MiBANK Tower" />
+              <img src={settings.images?.about || "/images/company.jpg"} alt="MiBANK Tower" />
             </div>
           </div>
         </div>

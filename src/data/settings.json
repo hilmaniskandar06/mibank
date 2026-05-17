@@ -10,5 +10,14 @@
     "visi_en": "To be the leading banking partner for entrepreneurs in Indonesia.",
     "misi_id": "Menyediakan layanan perbankan yang aman, inovatif, dan berorientasi pada kesuksesan nasabah.",
     "misi_en": "To provide secure, innovative, and customer success-oriented banking services."
+  },
+  "images": {
+    "hero": "/images/hero.png",
+    "about": "/images/company.jpg"
+  },
+  "contact": {
+    "address": "Jl. Jend. Sudirman Kav. 1, Jakarta Pusat, Indonesia",
+    "phone": "+62 21 1234 5678",
+    "email": "contact@mibank.co.id"
   }
 }

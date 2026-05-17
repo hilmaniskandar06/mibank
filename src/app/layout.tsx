@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 import { LanguageProvider } from "@/context/LanguageContext";
-import { getSession } from "./actions";
+import { getSession, getSettings } from "./actions";
 
 export default async function RootLayout({
   children,
@@ -17,6 +17,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getSession();
+  const settings = await getSettings();
 
   return (
     <html lang="id">
@@ -24,7 +25,7 @@ export default async function RootLayout({
         <LanguageProvider>
           <Navbar session={session} />
           <main>{children}</main>
-          <Footer />
+          <Footer settings={settings} />
         </LanguageProvider>
       </body>
     </html>

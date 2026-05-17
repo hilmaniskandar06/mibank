@@ -13,8 +13,12 @@ const SUBMISSIONS_PATH = path.join(process.cwd(), 'src/data/submissions.json');
 const SETTINGS_PATH = path.join(process.cwd(), 'src/data/settings.json');
 
 export async function getPromos() {
-  const data = await fs.readFile(PROMOS_PATH, 'utf8');
-  return JSON.parse(data);
+  try {
+    const data = await fs.readFile(PROMOS_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return [];
+  }
 }
 
 export async function addPromo(formData: FormData) {
@@ -42,8 +46,12 @@ export async function deletePromo(id: number) {
 
 // User Actions
 export async function getUsers() {
-  const data = await fs.readFile(USERS_PATH, 'utf8');
-  return JSON.parse(data);
+  try {
+    const data = await fs.readFile(USERS_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return [];
+  }
 }
 
 export async function registerUser(formData: FormData) {
@@ -108,8 +116,12 @@ export async function getSession() {
 
 // Submissions Actions
 export async function getSubmissions() {
-  const data = await fs.readFile(SUBMISSIONS_PATH, 'utf8');
-  return JSON.parse(data);
+  try {
+    const data = await fs.readFile(SUBMISSIONS_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return [];
+  }
 }
 
 export async function submitForm(formData: FormData) {
@@ -131,26 +143,80 @@ export async function submitForm(formData: FormData) {
 
 // Settings Actions
 export async function getSettings() {
-  const data = await fs.readFile(SETTINGS_PATH, 'utf8');
-  return JSON.parse(data);
+  try {
+    const data = await fs.readFile(SETTINGS_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return {
+      hero: { title_id: "", title_en: "", desc_id: "", desc_en: "" },
+      about: { visi_id: "", visi_en: "", misi_id: "", misi_en: "" },
+      images: { hero: "/images/hero.png", about: "/images/company.jpg" },
+      contact: { address: "", phone: "", email: "" }
+    };
+  }
 }
 
 export async function updateSettings(formData: FormData) {
-  const settings = {
-    hero: {
-      title_id: formData.get('hero_title_id') as string,
-      title_en: formData.get('hero_title_en') as string,
-      desc_id: formData.get('hero_desc_id') as string,
-      desc_en: formData.get('hero_desc_en') as string,
-    },
-    about: {
-      visi_id: formData.get('visi_id') as string,
-      visi_en: formData.get('visi_en') as string,
-      misi_id: formData.get('misi_id') as string,
-      misi_en: formData.get('misi_en') as string,
+  try {
+    const currentSettings = await getSettings();
+    const imagesDir = path.join(process.cwd(), 'public/images');
+    
+    // Ensure directory exists
+    await fs.mkdir(imagesDir, { recursive: true });
+    
+    // Handle Hero Image Upload
+    const heroImageFile = formData.get('hero_image') as File;
+    let heroImagePath = currentSettings.images?.hero || "/images/hero.png";
+    
+    if (heroImageFile && heroImageFile.size > 0) {
+      const buffer = Buffer.from(await heroImageFile.arrayBuffer());
+      const fileName = `hero_${Date.now()}.png`;
+      const filePath = path.join(imagesDir, fileName);
+      await fs.writeFile(filePath, buffer);
+      heroImagePath = `/images/${fileName}`;
     }
-  };
-  
-  await fs.writeFile(SETTINGS_PATH, JSON.stringify(settings, null, 2));
-  revalidatePath('/');
+
+    // Handle About Image Upload
+    const aboutImageFile = formData.get('about_image') as File;
+    let aboutImagePath = currentSettings.images?.about || "/images/company.jpg";
+    
+    if (aboutImageFile && aboutImageFile.size > 0) {
+      const buffer = Buffer.from(await aboutImageFile.arrayBuffer());
+      const fileName = `about_${Date.now()}.png`;
+      const filePath = path.join(imagesDir, fileName);
+      await fs.writeFile(filePath, buffer);
+      aboutImagePath = `/images/${fileName}`;
+    }
+
+    const settings = {
+      hero: {
+        title_id: formData.get('hero_title_id') as string,
+        title_en: formData.get('hero_title_en') as string,
+        desc_id: formData.get('hero_desc_id') as string,
+        desc_en: formData.get('hero_desc_en') as string,
+      },
+      about: {
+        visi_id: formData.get('visi_id') as string,
+        visi_en: formData.get('visi_en') as string,
+        misi_id: formData.get('misi_id') as string,
+        misi_en: formData.get('misi_en') as string,
+      },
+      images: {
+        hero: heroImagePath,
+        about: aboutImagePath
+      },
+      contact: {
+        address: formData.get('contact_address') as string,
+        phone: formData.get('contact_phone') as string,
+        email: formData.get('contact_email') as string
+      }
+    };
+    
+    await fs.writeFile(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    console.error("Update settings error:", error);
+    return { error: "Gagal memperbarui pengaturan." };
+  }
 }

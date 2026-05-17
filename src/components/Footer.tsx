@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import styles from './Footer.module.css';
 
-const Footer = () => {
+const Footer = ({ settings }: { settings: any }) => {
   return (
     <footer className={styles.footer}>
       <div className={`container ${styles.footerGrid}`}>
@@ -42,9 +42,9 @@ const Footer = () => {
         <div className={styles.footerCol}>
           <h4>Hubungi Kami</h4>
           <div className={styles.contactInfo}>
-            <p>📍 Menara MiBANK, Jakarta Pusat</p>
-            <p>📞 Halo MiBANK 1500999</p>
-            <p>📧 support@mibank.co.id</p>
+            <p>📍 {settings?.contact?.address || 'Menara MiBANK, Jakarta Pusat'}</p>
+            <p>📞 {settings?.contact?.phone || 'Halo MiBANK 1500999'}</p>
+            <p>📧 {settings?.contact?.email || 'support@mibank.co.id'}</p>
             <div className={styles.socialLinks}>
               <Link href="/" className={styles.socialIcon}>FB</Link>
               <Link href="/" className={styles.socialIcon}>IG</Link>
