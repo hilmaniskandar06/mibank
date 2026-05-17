@@ -26,8 +26,15 @@ export default function AdminDashboard({
   }, []);
 
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    localStorage.setItem('mibank_admin_dark_mode', (!isDarkMode).toString());
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    localStorage.setItem('mibank_admin_dark_mode', newMode.toString());
+    
+    if (newMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
   };
 
   const renderContent = () => {

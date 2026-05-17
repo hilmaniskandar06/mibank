@@ -22,6 +22,13 @@ export default async function RootLayout({
   return (
     <html lang="id">
       <body>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            if (localStorage.getItem('mibank_admin_dark_mode') === 'true') {
+              document.body.classList.add('dark-mode');
+            }
+          `
+        }} />
         <LanguageProvider>
           <Navbar session={session} />
           <main>{children}</main>

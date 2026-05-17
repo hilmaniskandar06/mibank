@@ -5,7 +5,7 @@
 
 .navbar {
   width: 100%;
-  background: #ffffff;
+  background: var(--bg-color);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -16,8 +16,8 @@
 
 /* Top Utility Bar */
 .topTier {
-  background: #f1f3f5;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--section-bg);
+  border-bottom: 1px solid var(--border-color);
   height: 40px;
   display: flex;
   align-items: center;
@@ -39,7 +39,7 @@
   gap: 15px;
   font-size: 13px;
   font-weight: 700;
-  color: #495057;
+  color: var(--text-color);
 }
 
 .langSwitch span {
@@ -54,7 +54,7 @@
 .topLink {
   font-size: 13px;
   font-weight: 600;
-  color: #495057;
+  color: var(--text-color);
   text-decoration: none;
 }
 
@@ -110,7 +110,7 @@
   text-decoration: none;
   font-size: 26px;
   font-weight: 800;
-  color: #00468b;
+  color: var(--primary-color);
 }
 
 .logoIcon {
@@ -133,14 +133,14 @@
 
 .navLinks a {
   text-decoration: none;
-  color: #212529;
+  color: var(--text-color);
   font-weight: 600;
   font-size: 16px;
   transition: color 0.2s;
 }
 
 .navLinks a:hover {
-  color: #00468b;
+  color: var(--primary-color);
 }
 
 .searchBox {
@@ -151,8 +151,9 @@
 .searchInput {
   padding: 10px 20px;
   border-radius: 25px;
-  border: 1px solid #ced4da;
-  background: #f8f9fa;
+  border: 1px solid var(--border-color);
+  background: var(--section-bg);
+  color: var(--text-color);
   width: 180px;
   font-size: 14px;
   outline: none;
@@ -161,8 +162,8 @@
 
 .searchInput:focus {
   width: 260px;
-  border-color: #00468b;
-  background: white;
+  border-color: var(--primary-color);
+  background: var(--bg-color);
 }
 
 /* Mobile specific */
@@ -194,7 +195,7 @@
     right: -100%;
     width: 85%;
     height: 100vh;
-    background: white;
+    background: var(--bg-color);
     flex-direction: column;
     padding: 100px 40px;
     transition: right 0.4s ease;
