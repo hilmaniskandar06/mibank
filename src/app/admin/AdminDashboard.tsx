@@ -114,6 +114,10 @@ export default function AdminDashboard({
                   <label>Deskripsi (EN)</label>
                   <textarea name="desc_en" rows={3} required />
                 </div>
+                <div className={styles.formGroup}>
+                  <label>Gambar Promo</label>
+                  <input type="file" name="promo_image" accept="image/*" required style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px' }} />
+                </div>
                 <button type="submit" className="btn btn-primary">Simpan Promo</button>
               </form>
             </div>

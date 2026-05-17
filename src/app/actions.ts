@@ -23,13 +23,31 @@ export async function getPromos() {
 
 export async function addPromo(formData: FormData) {
   const data = await getPromos();
+  
+  const imageFile = formData.get('promo_image') as File;
+  let imagePath = "/images/promo1.png"; // Default fallback
+  
+  if (imageFile && imageFile.size > 0) {
+    try {
+      const buffer = Buffer.from(await imageFile.arrayBuffer());
+      const fileName = `promo_${Date.now()}.png`;
+      const imagesDir = path.join(process.cwd(), 'public/images');
+      await fs.mkdir(imagesDir, { recursive: true });
+      const filePath = path.join(imagesDir, fileName);
+      await fs.writeFile(filePath, buffer);
+      imagePath = `/images/${fileName}`;
+    } catch (err) {
+      console.error("Gagal mengunggah gambar promo:", err);
+    }
+  }
+
   const newPromo = {
     id: Date.now(),
     title_id: formData.get('title_id') as string,
     title_en: formData.get('title_en') as string,
     desc_id: formData.get('desc_id') as string,
     desc_en: formData.get('desc_en') as string,
-    image: "/images/promo1.png"
+    image: imagePath
   };
   
   data.push(newPromo);
