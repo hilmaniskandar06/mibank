@@ -12,7 +12,10 @@ export default function RegisterPage() {
       contentId={
         <div style={{ maxWidth: '500px', margin: '0 auto', background: '#f8f9fa', padding: '40px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
           <h2 style={{ marginBottom: '30px', textAlign: 'center', color: 'var(--primary-color)' }}>Formulir Pendaftaran</h2>
-          <form action={registerUser}>
+          <form action={async (formData) => {
+            const res = await registerUser(formData);
+            if (res && res.error) alert(res.error);
+          }}>
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Nama Lengkap</label>
               <input name="name" type="text" required placeholder="Masukkan nama sesuai KTP" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }} />
@@ -49,7 +52,10 @@ export default function RegisterPage() {
       contentEn={
         <div style={{ maxWidth: '500px', margin: '0 auto', background: '#f8f9fa', padding: '40px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
           <h2 style={{ marginBottom: '30px', textAlign: 'center', color: 'var(--primary-color)' }}>Registration Form</h2>
-          <form action={registerUser}>
+          <form action={async (formData) => {
+            const res = await registerUser(formData);
+            if (res && res.error) alert(res.error);
+          }}>
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Full Name</label>
               <input name="name" type="text" required placeholder="As shown on ID" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }} />

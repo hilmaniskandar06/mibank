@@ -12,7 +12,10 @@ export default function LoginPage() {
       contentId={
         <div style={{ maxWidth: '400px', margin: '0 auto', background: '#f8f9fa', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
           <h2 style={{ marginBottom: '20px', textAlign: 'center', color: 'var(--primary-color)' }}>Akses Akun Anda</h2>
-          <form action={loginUser}>
+          <form action={async (formData) => {
+            const res = await loginUser(formData);
+            if (res && res.error) alert(res.error);
+          }}>
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600' }}>Email</label>
               <input name="email" type="email" required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }} />
@@ -34,7 +37,10 @@ export default function LoginPage() {
       contentEn={
         <div style={{ maxWidth: '400px', margin: '0 auto', background: '#f8f9fa', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
           <h2 style={{ marginBottom: '20px', textAlign: 'center', color: 'var(--primary-color)' }}>Access Your Account</h2>
-          <form action={loginUser}>
+          <form action={async (formData) => {
+            const res = await loginUser(formData);
+            if (res && res.error) alert(res.error);
+          }}>
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600' }}>Email</label>
               <input name="email" type="email" required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }} />
