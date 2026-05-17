@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './Admin.module.css';
 import { addPromo, deletePromo, updateSettings } from '../actions';
 
@@ -18,6 +18,17 @@ export default function AdminDashboard({
   initialSettings 
 }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState('submissions');
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('mibank_admin_dark_mode');
+    if (saved === 'true') setIsDarkMode(true);
+  }, []);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    localStorage.setItem('mibank_admin_dark_mode', (!isDarkMode).toString());
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -275,7 +286,7 @@ export default function AdminDashboard({
   };
 
   return (
-    <div className={styles.adminLayout}>
+    <div className={`${styles.adminLayout} ${isDarkMode ? styles.darkMode : ''}`}>
       <div className={styles.sidebar}>
         <div 
           className={`${styles.sidebarItem} ${activeTab === 'submissions' ? styles.active : ''}`}
@@ -300,6 +311,28 @@ export default function AdminDashboard({
           onClick={() => setActiveTab('settings')}
         >
           ⚙️ Pengaturan
+        </div>
+        <div style={{ marginTop: 'auto', padding: '20px' }}>
+          <button 
+            onClick={toggleDarkMode}
+            style={{
+              width: '100%',
+              padding: '10px',
+              borderRadius: '8px',
+              border: isDarkMode ? '1px solid #444' : '1px solid #ddd',
+              background: isDarkMode ? '#2c2c2c' : '#fff',
+              color: isDarkMode ? '#fff' : '#333',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              fontWeight: '600',
+              transition: 'all 0.3s'
+            }}
+          >
+            {isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
+          </button>
         </div>
       </div>
       <div className={styles.mainContent}>

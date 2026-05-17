@@ -115,3 +115,61 @@
 
 .btnDelete { background: #ff4d4d; color: white; }
 .btnEdit { background: #00468b; color: white; }
+
+/* Dark Mode Styles */
+.darkMode {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+.darkMode .sidebar {
+  background: #1e1e1e;
+  border-right-color: #333;
+}
+
+.darkMode .sidebarItem {
+  color: #bbb;
+}
+
+.darkMode .sidebarItem:hover {
+  background: #2c2c2c;
+  color: #66b3ff;
+}
+
+.darkMode .sidebarItem.active {
+  background: #2a3a5a;
+  color: #66b3ff;
+  border-right-color: #66b3ff;
+}
+
+.darkMode .card {
+  background: #1e1e1e;
+  box-shadow: none;
+  border: 1px solid #333;
+}
+
+.darkMode .table th {
+  border-bottom-color: #444;
+  color: #ccc;
+}
+
+.darkMode .table td {
+  border-bottom-color: #444;
+  color: #eee;
+}
+
+.darkMode .formGroup input, 
+.darkMode .formGroup textarea {
+  background: #2c2c2c;
+  border-color: #444;
+  color: #fff;
+}
+
+.darkMode h2, 
+.darkMode h3 {
+  color: #fff;
+}
+
+.darkMode label {
+  color: #ddd;
+}
