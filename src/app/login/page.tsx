@@ -29,9 +29,6 @@ export default function LoginPage() {
           <p style={{ marginTop: '20px', textAlign: 'center', fontSize: '14px' }}>
             Belum punya akun? <a href="/register" style={{ color: 'var(--primary-color)', fontWeight: '700' }}>Daftar di sini</a>
           </p>
-          <div style={{ marginTop: '15px', padding: '10px', background: '#e7f3ff', borderRadius: '8px', fontSize: '12px', color: '#00468b' }}>
-            <strong>Demo Admin:</strong> admin@mibank.com / admin123
-          </div>
         </div>
       }
       contentEn={
@@ -54,9 +51,6 @@ export default function LoginPage() {
           <p style={{ marginTop: '20px', textAlign: 'center', fontSize: '14px' }}>
             Don't have an account? <a href="/register" style={{ color: 'var(--primary-color)', fontWeight: '700' }}>Register here</a>
           </p>
-          <div style={{ marginTop: '15px', padding: '10px', background: '#e7f3ff', borderRadius: '8px', fontSize: '12px', color: '#00468b' }}>
-            <strong>Demo Admin:</strong> admin@mibank.com / admin123
-          </div>
         </div>
       }
     />
