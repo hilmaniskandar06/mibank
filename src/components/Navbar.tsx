@@ -3,12 +3,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import styles from './Navbar.module.css';
-import { useLanguage } from '@/context/LanguageContext';
 import { translations } from '@/lib/translations';
 import { logoutUser } from '@/app/actions';
 
 const Navbar = ({ session }: { session: any }) => {
-  const { lang, setLang } = useLanguage();
+  const lang = 'ID';
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const t = translations[lang].nav;
@@ -27,10 +26,7 @@ const Navbar = ({ session }: { session: any }) => {
       {/* 1. Top Tier (Grey Bar) */}
       <div className={styles.topTier}>
         <div className={styles.topTierContent}>
-          <div className={styles.langSwitch}>
-            <span className={lang === 'ID' ? styles.active : ''} onClick={() => setLang('ID')}>ID</span>
-            <span className={lang === 'EN' ? styles.active : ''} onClick={() => setLang('EN')}>EN</span>
-          </div>
+          <div className={styles.langSwitch}></div>
           {session ? (
             <>
               <span className={styles.topLink}>Hi, {session.role === 'admin' ? 'Admin' : 'Member'}</span>
@@ -76,7 +72,7 @@ const Navbar = ({ session }: { session: any }) => {
             <form onSubmit={handleSearch}>
               <input 
                 type="text" 
-                placeholder={lang === 'ID' ? "Cari..." : "Search..."} 
+                placeholder="Cari..." 
                 className={styles.searchInput}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

@@ -17,7 +17,8 @@ import {
   updateLoanSettings,
   updateDigitalSettings,
   updateCareersSettings,
-  uploadCareerImage
+  uploadCareerImage,
+  updateSmileUmkmStatus
 } from '../actions';
 
 interface AdminDashboardProps {
@@ -31,6 +32,7 @@ interface AdminDashboardProps {
   initialLoanSettings: any;
   initialDigitalSettings: any;
   initialCareersSettings: any;
+  initialSmileUmkmSubmissions: any[];
 }
 
 export default function AdminDashboard({ 
@@ -43,44 +45,39 @@ export default function AdminDashboard({
   initialCreditSettings,
   initialLoanSettings,
   initialDigitalSettings,
-  initialCareersSettings
+  initialCareersSettings,
+  initialSmileUmkmSubmissions
 }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState('submissions');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [editingPromoId, setEditingPromoId] = useState<number | null>(null);
+  const [smileSubmissions, setSmileSubmissions] = useState(initialSmileUmkmSubmissions || []);
+  const [expandedSmileId, setExpandedSmileId] = useState<number | null>(null);
   const [selectedAppId, setSelectedAppId] = useState<number | null>(null);
   const selectedApp = initialApplications.find(a => a.id === selectedAppId);
   const editingPromo = initialPromos.find(p => p.id === editingPromoId);
 
   // Savings settings states
   const [savingsTitleId, setSavingsTitleId] = useState(initialSavingsSettings?.title_id || '');
-  const [savingsTitleEn, setSavingsTitleEn] = useState(initialSavingsSettings?.title_en || '');
   const [savingsDescId, setSavingsDescId] = useState(initialSavingsSettings?.desc_id || '');
-  const [savingsDescEn, setSavingsDescEn] = useState(initialSavingsSettings?.desc_en || '');
   const [savingsBanks, setSavingsBanks] = useState<any[]>(initialSavingsSettings?.banks || []);
   const [savingsMsg, setSavingsMsg] = useState('');
 
   // Credit card settings states
   const [creditTitleId, setCreditTitleId] = useState(initialCreditSettings?.title_id || '');
-  const [creditTitleEn, setCreditTitleEn] = useState(initialCreditSettings?.title_en || '');
   const [creditDescId, setCreditDescId] = useState(initialCreditSettings?.desc_id || '');
-  const [creditDescEn, setCreditDescEn] = useState(initialCreditSettings?.desc_en || '');
   const [creditBanks, setCreditBanks] = useState<any[]>(initialCreditSettings?.banks || []);
   const [creditMsg, setCreditMsg] = useState('');
 
   // Loan settings states
   const [loanTitleId, setLoanTitleId] = useState(initialLoanSettings?.title_id || '');
-  const [loanTitleEn, setLoanTitleEn] = useState(initialLoanSettings?.title_en || '');
   const [loanDescId, setLoanDescId] = useState(initialLoanSettings?.desc_id || '');
-  const [loanDescEn, setLoanDescEn] = useState(initialLoanSettings?.desc_en || '');
   const [loanBanks, setLoanBanks] = useState<any[]>(initialLoanSettings?.banks || []);
   const [loanMsg, setLoanMsg] = useState('');
 
   // Digital banking settings states
   const [digitalTitleId, setDigitalTitleId] = useState(initialDigitalSettings?.title_id || '');
-  const [digitalTitleEn, setDigitalTitleEn] = useState(initialDigitalSettings?.title_en || '');
   const [digitalDescId, setDigitalDescId] = useState(initialDigitalSettings?.desc_id || '');
-  const [digitalDescEn, setDigitalDescEn] = useState(initialDigitalSettings?.desc_en || '');
   const [digitalBanks, setDigitalBanks] = useState<any[]>(initialDigitalSettings?.banks || []);
   const [digitalMsg, setDigitalMsg] = useState('');
 
@@ -89,9 +86,7 @@ export default function AdminDashboard({
   const [expandedJobIndex, setExpandedJobIndex] = useState<number | null>(null);
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [careersTitleId, setCareersTitleId] = useState(initialCareersSettings?.title_id || 'Bangun Karir Bersama Kami');
-  const [careersTitleEn, setCareersTitleEn] = useState(initialCareersSettings?.title_en || 'Build Your Career With Us');
   const [careersDescId, setCareersDescId] = useState(initialCareersSettings?.desc_id || '');
-  const [careersDescEn, setCareersDescEn] = useState(initialCareersSettings?.desc_en || '');
   const [careersVacancies, setCareersVacancies] = useState<any[]>(initialCareersSettings?.vacancies || []);
   const [careersMsg, setCareersMsg] = useState('');
 
@@ -100,9 +95,7 @@ export default function AdminDashboard({
     setCareersMsg('Menyimpan...');
     const result = await updateCareersSettings({
       title_id: careersTitleId,
-      title_en: careersTitleEn,
       desc_id: careersDescId,
-      desc_en: careersDescEn,
       vacancies: careersVacancies
     });
     if (result.success) {
@@ -136,9 +129,7 @@ export default function AdminDashboard({
     setSavingsMsg('Sedang menyimpan...');
     const payload = {
       title_id: savingsTitleId,
-      title_en: savingsTitleEn,
       desc_id: savingsDescId,
-      desc_en: savingsDescEn,
       banks: savingsBanks
     };
     const res = await updateSavingsSettings(payload);
@@ -155,9 +146,7 @@ export default function AdminDashboard({
     setCreditMsg('Sedang menyimpan...');
     const payload = {
       title_id: creditTitleId,
-      title_en: creditTitleEn,
       desc_id: creditDescId,
-      desc_en: creditDescEn,
       banks: creditBanks
     };
     const res = await updateCreditSettings(payload);
@@ -174,9 +163,7 @@ export default function AdminDashboard({
     setLoanMsg('Sedang menyimpan...');
     const payload = {
       title_id: loanTitleId,
-      title_en: loanTitleEn,
       desc_id: loanDescId,
-      desc_en: loanDescEn,
       banks: loanBanks
     };
     const res = await updateLoanSettings(payload);
@@ -193,9 +180,7 @@ export default function AdminDashboard({
     setDigitalMsg('Sedang menyimpan...');
     const payload = {
       title_id: digitalTitleId,
-      title_en: digitalTitleEn,
       desc_id: digitalDescId,
-      desc_en: digitalDescEn,
       banks: digitalBanks
     };
     const res = await updateDigitalSettings(payload);
@@ -311,10 +296,18 @@ export default function AdminDashboard({
     // File name: daftar_pelamar_mibank_YYYY-MM-DD.csv
     const dateStr = new Date().toISOString().split('T')[0];
     link.setAttribute("download", `daftar_pelamar_mibank_${dateStr}.csv`);
-    
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleSmileStatusUpdate = async (id: number, status: string) => {
+    const res = await updateSmileUmkmStatus(id, status);
+    if (res.success) {
+      setSmileSubmissions(smileSubmissions.map((sub: any) => sub.id === id ? { ...sub, status } : sub));
+    } else {
+      alert(res.error || "Gagal memperbarui status");
+    }
   };
 
   const renderContent = () => {
@@ -389,23 +382,15 @@ export default function AdminDashboard({
                 }
               }} style={{ marginTop: '20px' }}>
                 {editingPromo && <input type="hidden" name="id" value={editingPromo.id} />}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div style={{ marginBottom: '20px' }}>
                   <div className={styles.formGroup}>
-                    <label>Judul (ID)</label>
+                    <label>Judul Promo</label>
                     <input name="title_id" required defaultValue={editingPromo ? editingPromo.title_id : ''} />
                   </div>
-                  <div className={styles.formGroup}>
-                    <label>Judul (EN)</label>
-                    <input name="title_en" required defaultValue={editingPromo ? editingPromo.title_en : ''} />
-                  </div>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Deskripsi (ID)</label>
+                  <label>Deskripsi Promo</label>
                   <textarea name="desc_id" rows={3} required defaultValue={editingPromo ? editingPromo.desc_id : ''} />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Deskripsi (EN)</label>
-                  <textarea name="desc_en" rows={3} required defaultValue={editingPromo ? editingPromo.desc_en : ''} />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Gambar Promo {editingPromo ? '(Upload Baru jika ingin ganti)' : ''}</label>
@@ -980,9 +965,9 @@ export default function AdminDashboard({
                   <div className={styles.card}>
                     <h3 style={{ marginBottom: '20px', color: 'var(--primary-color, #003366)', fontWeight: 'bold' }}>1. Judul & Deskripsi Halaman Karir</h3>
                     
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                    <div style={{ marginBottom: '20px' }}>
                       <div className={styles.formGroup}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman (Bahasa Indonesia)</label>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman</label>
                         <input 
                           type="text" 
                           value={careersTitleId} 
@@ -990,33 +975,15 @@ export default function AdminDashboard({
                           required 
                         />
                       </div>
-                      <div className={styles.formGroup}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman (English)</label>
-                        <input 
-                          type="text" 
-                          value={careersTitleEn} 
-                          onChange={(e) => setCareersTitleEn(e.target.value)} 
-                          required 
-                        />
-                      </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    <div style={{ marginBottom: '20px' }}>
                       <div className={styles.formGroup}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman (Bahasa Indonesia)</label>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman</label>
                         <textarea 
                           rows={3} 
                           value={careersDescId} 
                           onChange={(e) => setCareersDescId(e.target.value)} 
-                          required 
-                        />
-                      </div>
-                      <div className={styles.formGroup}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman (English)</label>
-                        <textarea 
-                          rows={3} 
-                          value={careersDescEn} 
-                          onChange={(e) => setCareersDescEn(e.target.value)} 
                           required 
                         />
                       </div>
@@ -1139,18 +1106,6 @@ export default function AdminDashboard({
                                       setCareersVacancies(list);
                                     }}
                                     required
-                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd', background: isDarkMode ? '#2c2c2c' : '#fff', color: isDarkMode ? '#fff' : '#000', marginBottom: '6px' }}
-                                  />
-                                  <input 
-                                    type="text" 
-                                    value={job.titleEn} 
-                                    placeholder="Name (English)"
-                                    onChange={(e) => {
-                                      const list = [...careersVacancies];
-                                      list[index].titleEn = e.target.value;
-                                      setCareersVacancies(list);
-                                    }}
-                                    required
                                     style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd', background: isDarkMode ? '#2c2c2c' : '#fff', color: isDarkMode ? '#fff' : '#000' }}
                                   />
                                 </td>
@@ -1165,18 +1120,6 @@ export default function AdminDashboard({
                                       setCareersVacancies(list);
                                     }}
                                     required
-                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd', background: isDarkMode ? '#2c2c2c' : '#fff', color: isDarkMode ? '#fff' : '#000', marginBottom: '6px' }}
-                                  />
-                                  <input 
-                                    type="text" 
-                                    value={job.locEn} 
-                                    placeholder="Location (English)"
-                                    onChange={(e) => {
-                                      const list = [...careersVacancies];
-                                      list[index].locEn = e.target.value;
-                                      setCareersVacancies(list);
-                                    }}
-                                    required
                                     style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd', background: isDarkMode ? '#2c2c2c' : '#fff', color: isDarkMode ? '#fff' : '#000' }}
                                   />
                                 </td>
@@ -1188,18 +1131,6 @@ export default function AdminDashboard({
                                     onChange={(e) => {
                                       const list = [...careersVacancies];
                                       list[index].typeId = e.target.value;
-                                      setCareersVacancies(list);
-                                    }}
-                                    required
-                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd', background: isDarkMode ? '#2c2c2c' : '#fff', color: isDarkMode ? '#fff' : '#000', marginBottom: '6px' }}
-                                  />
-                                  <input 
-                                    type="text" 
-                                    value={job.typeEn} 
-                                    placeholder="Type (English)"
-                                    onChange={(e) => {
-                                      const list = [...careersVacancies];
-                                      list[index].typeEn = e.target.value;
                                       setCareersVacancies(list);
                                     }}
                                     required
@@ -1239,7 +1170,7 @@ export default function AdminDashboard({
                                       </h4>
                                       
                                       {/* Overview */}
-                                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '15px' }}>
+                                      <div style={{ marginBottom: '15px' }}>
                                         <div>
                                           <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '12px', color: '#475569' }}>
                                             Deskripsi Pekerjaan / Overview (Bahasa Indonesia)
@@ -1256,26 +1187,10 @@ export default function AdminDashboard({
                                             style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#2c2c2c' : '#fff', color: isDarkMode ? '#fff' : '#000', fontSize: '13px', lineHeight: '1.5' }}
                                           />
                                         </div>
-                                        <div>
-                                          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '12px', color: '#475569' }}>
-                                            Job Overview (English)
-                                          </label>
-                                          <textarea 
-                                            rows={3} 
-                                            value={job.overviewEn || ''} 
-                                            onChange={(e) => {
-                                              const list = [...careersVacancies];
-                                              list[index].overviewEn = e.target.value;
-                                              setCareersVacancies(list);
-                                            }}
-                                            placeholder="Write job overview..."
-                                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#2c2c2c' : '#fff', color: isDarkMode ? '#fff' : '#000', fontSize: '13px', lineHeight: '1.5' }}
-                                          />
-                                        </div>
                                       </div>
 
                                       {/* Responsibilities */}
-                                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '15px' }}>
+                                      <div style={{ marginBottom: '15px' }}>
                                         <div>
                                           <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '12px', color: '#475569' }}>
                                             Tanggung Jawab Utama (Bahasa Indonesia - Satu Per Baris / Tekan Enter)
@@ -1292,26 +1207,10 @@ export default function AdminDashboard({
                                             style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#2c2c2c' : '#fff', color: isDarkMode ? '#fff' : '#000', fontSize: '13px', lineHeight: '1.5', fontFamily: 'monospace' }}
                                           />
                                         </div>
-                                        <div>
-                                          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '12px', color: '#475569' }}>
-                                            Key Responsibilities (English - One Per Line / Press Enter)
-                                          </label>
-                                          <textarea 
-                                            rows={5} 
-                                            value={(job.responsibilitiesEn || []).join('\n')} 
-                                            onChange={(e) => {
-                                              const list = [...careersVacancies];
-                                              list[index].responsibilitiesEn = e.target.value.split('\n');
-                                              setCareersVacancies(list);
-                                            }}
-                                            placeholder="Example:&#10;Serve customer withdrawals.&#10;Verify customer signatures."
-                                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#2c2c2c' : '#fff', color: isDarkMode ? '#fff' : '#000', fontSize: '13px', lineHeight: '1.5', fontFamily: 'monospace' }}
-                                          />
-                                        </div>
                                       </div>
 
                                       {/* Requirements */}
-                                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                      <div>
                                         <div>
                                           <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '12px', color: '#475569' }}>
                                             Persyaratan Pelamar (Bahasa Indonesia - Satu Per Baris / Tekan Enter)
@@ -1325,22 +1224,6 @@ export default function AdminDashboard({
                                               setCareersVacancies(list);
                                             }}
                                             placeholder="Contoh:&#10;Pendidikan minimal S1.&#10;IPK minimal 3.00."
-                                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#2c2c2c' : '#fff', color: isDarkMode ? '#fff' : '#000', fontSize: '13px', lineHeight: '1.5', fontFamily: 'monospace' }}
-                                          />
-                                        </div>
-                                        <div>
-                                          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '12px', color: '#475569' }}>
-                                            Applicant Requirements (English - One Per Line / Press Enter)
-                                          </label>
-                                          <textarea 
-                                            rows={5} 
-                                            value={(job.requirementsEn || []).join('\n')} 
-                                            onChange={(e) => {
-                                              const list = [...careersVacancies];
-                                              list[index].requirementsEn = e.target.value.split('\n');
-                                              setCareersVacancies(list);
-                                            }}
-                                            placeholder="Example:&#10;Minimum S1 degree.&#10;Minimum GPA 3.00."
                                             style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: isDarkMode ? '#2c2c2c' : '#fff', color: isDarkMode ? '#fff' : '#000', fontSize: '13px', lineHeight: '1.5', fontFamily: 'monospace' }}
                                           />
                                         </div>
@@ -1396,9 +1279,9 @@ export default function AdminDashboard({
               <div className={styles.card}>
                 <h3 style={{ marginBottom: '20px', color: 'var(--primary-color, #003366)', fontWeight: 'bold' }}>1. Judul & Deskripsi Halaman</h3>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div style={{ marginBottom: '20px' }}>
                   <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman (Bahasa Indonesia)</label>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman</label>
                     <input 
                       type="text" 
                       value={savingsTitleId} 
@@ -1406,33 +1289,15 @@ export default function AdminDashboard({
                       required 
                     />
                   </div>
-                  <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman (English)</label>
-                    <input 
-                      type="text" 
-                      value={savingsTitleEn} 
-                      onChange={(e) => setSavingsTitleEn(e.target.value)} 
-                      required 
-                    />
-                  </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div style={{ marginBottom: '20px' }}>
                   <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman (Bahasa Indonesia)</label>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman</label>
                     <textarea 
                       rows={4} 
                       value={savingsDescId} 
                       onChange={(e) => setSavingsDescId(e.target.value)} 
-                      required 
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman (English)</label>
-                    <textarea 
-                      rows={4} 
-                      value={savingsDescEn} 
-                      onChange={(e) => setSavingsDescEn(e.target.value)} 
                       required 
                     />
                   </div>
@@ -1602,9 +1467,9 @@ export default function AdminDashboard({
               <div className={styles.card}>
                 <h3 style={{ marginBottom: '20px', color: 'var(--primary-color, #003366)', fontWeight: 'bold' }}>1. Judul & Deskripsi Halaman</h3>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div style={{ marginBottom: '20px' }}>
                   <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman (Bahasa Indonesia)</label>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman</label>
                     <input 
                       type="text" 
                       value={creditTitleId} 
@@ -1612,33 +1477,15 @@ export default function AdminDashboard({
                       required 
                     />
                   </div>
-                  <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman (English)</label>
-                    <input 
-                      type="text" 
-                      value={creditTitleEn} 
-                      onChange={(e) => setCreditTitleEn(e.target.value)} 
-                      required 
-                    />
-                  </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div style={{ marginBottom: '20px' }}>
                   <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman (Bahasa Indonesia)</label>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman</label>
                     <textarea 
                       rows={4} 
                       value={creditDescId} 
                       onChange={(e) => setCreditDescId(e.target.value)} 
-                      required 
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman (English)</label>
-                    <textarea 
-                      rows={4} 
-                      value={creditDescEn} 
-                      onChange={(e) => setCreditDescEn(e.target.value)} 
                       required 
                     />
                   </div>
@@ -1818,9 +1665,9 @@ export default function AdminDashboard({
               <div className={styles.card}>
                 <h3 style={{ marginBottom: '20px', color: 'var(--primary-color, #003366)', fontWeight: 'bold' }}>1. Judul & Deskripsi Halaman</h3>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div style={{ marginBottom: '20px' }}>
                   <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman (Bahasa Indonesia)</label>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman</label>
                     <input 
                       type="text" 
                       value={loanTitleId} 
@@ -1828,33 +1675,15 @@ export default function AdminDashboard({
                       required 
                     />
                   </div>
-                  <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman (English)</label>
-                    <input 
-                      type="text" 
-                      value={loanTitleEn} 
-                      onChange={(e) => setLoanTitleEn(e.target.value)} 
-                      required 
-                    />
-                  </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div style={{ marginBottom: '20px' }}>
                   <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman (Bahasa Indonesia)</label>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman</label>
                     <textarea 
                       rows={4} 
                       value={loanDescId} 
                       onChange={(e) => setLoanDescId(e.target.value)} 
-                      required 
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman (English)</label>
-                    <textarea 
-                      rows={4} 
-                      value={loanDescEn} 
-                      onChange={(e) => setLoanDescEn(e.target.value)} 
                       required 
                     />
                   </div>
@@ -2034,9 +1863,9 @@ export default function AdminDashboard({
               <div className={styles.card}>
                 <h3 style={{ marginBottom: '20px', color: 'var(--primary-color, #003366)', fontWeight: 'bold' }}>1. Judul & Deskripsi Halaman</h3>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div style={{ marginBottom: '20px' }}>
                   <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman (Bahasa Indonesia)</label>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman</label>
                     <input 
                       type="text" 
                       value={digitalTitleId} 
@@ -2044,33 +1873,15 @@ export default function AdminDashboard({
                       required 
                     />
                   </div>
-                  <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Judul Halaman (English)</label>
-                    <input 
-                      type="text" 
-                      value={digitalTitleEn} 
-                      onChange={(e) => setDigitalTitleEn(e.target.value)} 
-                      required 
-                    />
-                  </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div style={{ marginBottom: '20px' }}>
                   <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman (Bahasa Indonesia)</label>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman</label>
                     <textarea 
                       rows={4} 
                       value={digitalDescId} 
                       onChange={(e) => setDigitalDescId(e.target.value)} 
-                      required 
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Deskripsi Halaman (English)</label>
-                    <textarea 
-                      rows={4} 
-                      value={digitalDescEn} 
-                      onChange={(e) => setDigitalDescEn(e.target.value)} 
                       required 
                     />
                   </div>
@@ -2225,6 +2036,179 @@ export default function AdminDashboard({
           </div>
         );
 
+      case 'smileUmkm':
+        return (
+          <div>
+            <div className={styles.header}>
+              <h2>Daftar Pengajuan Program SMILE UMKM</h2>
+            </div>
+            
+            <div className={styles.card}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>Nama Pemohon</th>
+                    <th>Nama Usaha</th>
+                    <th>No. HP</th>
+                    <th>Pembayaran</th>
+                    <th>Rata-rata Transaksi</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {smileSubmissions.map((sub: any) => (
+                    <React.Fragment key={sub.id}>
+                      <tr>
+                        <td>{sub.date}</td>
+                        <td style={{ fontWeight: '600' }}>{sub.name}</td>
+                        <td>{sub.businessName}</td>
+                        <td>{sub.phone}</td>
+                        <td>{sub.paymentMethod}</td>
+                        <td>Rp {sub.monthlyRevenue?.toLocaleString('id-ID')}</td>
+                        <td>
+                          <span className={`${styles.status} ${styles[sub.status.toLowerCase()]}`}>
+                            {sub.status}
+                          </span>
+                        </td>
+                        <td>
+                          <button 
+                            className={styles.btnAction} 
+                            style={{ background: '#17a2b8', color: 'white', marginRight: '5px' }}
+                            onClick={() => setExpandedSmileId(expandedSmileId === sub.id ? null : sub.id)}
+                          >
+                            {expandedSmileId === sub.id ? 'Tutup Detail' : 'Detail'}
+                          </button>
+                          {sub.status === 'Pending' && (
+                            <>
+                              <button 
+                                className={styles.btnAction} 
+                                style={{ background: '#28a745', color: 'white', marginRight: '5px' }}
+                                onClick={() => handleSmileStatusUpdate(sub.id, 'Disetujui')}
+                              >
+                                ✓ Setujui
+                              </button>
+                              <button 
+                                className={styles.btnAction} 
+                                style={{ background: '#dc3545', color: 'white' }}
+                                onClick={() => handleSmileStatusUpdate(sub.id, 'Ditolak')}
+                              >
+                                ✕ Tolak
+                              </button>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* Detail Expansion */}
+                      {expandedSmileId === sub.id && (
+                        <tr>
+                          <td colSpan={8} style={{ background: isDarkMode ? '#1e1e1e' : '#f8fafc', padding: '25px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+                              
+                              {/* Left Column: Data Diri & Usaha */}
+                              <div>
+                                <h4 style={{ color: 'var(--primary-color, #003366)', borderBottom: '1px solid #ddd', paddingBottom: '5px', marginBottom: '15px', fontWeight: '700' }}>
+                                  Detail Pemohon & Usaha
+                                </h4>
+                                <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                  <tbody>
+                                    <tr>
+                                      <td style={{ padding: '6px 0', color: '#666', width: '35%', fontWeight: '600' }}>Alamat Pemohon</td>
+                                      <td style={{ padding: '6px 0', color: '#333' }}>: {sub.address}</td>
+                                    </tr>
+                                    <tr>
+                                      <td style={{ padding: '6px 0', color: '#666', fontWeight: '600' }}>Email Pemohon</td>
+                                      <td style={{ padding: '6px 0', color: '#333' }}>: {sub.email}</td>
+                                    </tr>
+                                    <tr>
+                                      <td style={{ padding: '6px 0', color: '#666', fontWeight: '600' }}>Kegiatan Usaha</td>
+                                      <td style={{ padding: '6px 0', color: '#333' }}>: {sub.businessActivity}</td>
+                                    </tr>
+                                    <tr>
+                                      <td style={{ padding: '6px 0', color: '#666', fontWeight: '600' }}>Alamat Usaha</td>
+                                      <td style={{ padding: '6px 0', color: '#333' }}>: {sub.businessAddress}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+
+                                <h4 style={{ color: 'var(--primary-color, #003366)', borderBottom: '1px solid #ddd', paddingBottom: '5px', marginTop: '20px', marginBottom: '15px', fontWeight: '700' }}>
+                                  Metode Pembayaran & Keuangan
+                                </h4>
+                                <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                  <tbody>
+                                    <tr>
+                                      <td style={{ padding: '6px 0', color: '#666', width: '35%', fontWeight: '600' }}>Bank Penerbit</td>
+                                      <td style={{ padding: '6px 0', color: '#333' }}>: {sub.bank}</td>
+                                    </tr>
+                                    <tr>
+                                      <td style={{ padding: '6px 0', color: '#666', fontWeight: '600' }}>NMID QRIS</td>
+                                      <td style={{ padding: '6px 0', color: '#333' }}>: {sub.nmid || '-'}</td>
+                                    </tr>
+                                    <tr>
+                                      <td style={{ padding: '6px 0', color: '#666', fontWeight: '600' }}>Saldo Mengendap</td>
+                                      <td style={{ padding: '6px 0', color: '#333' }}>: Rp {sub.monthlyBalance?.toLocaleString('id-ID')} / bulan</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+
+                              {/* Right Column: Uploaded Photos */}
+                              <div>
+                                <h4 style={{ color: 'var(--primary-color, #003366)', borderBottom: '1px solid #ddd', paddingBottom: '5px', marginBottom: '15px', fontWeight: '700' }}>
+                                  Foto Berkas Lampiran Usaha
+                                </h4>
+                                <div style={{ display: 'flex', gap: '20px', marginTop: '10px' }}>
+                                  <div style={{ flex: '1', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '11px', color: '#666', marginBottom: '6px', fontWeight: '600' }}>Tampak Depan Usaha</div>
+                                    {sub.frontPhoto ? (
+                                      <a href={sub.frontPhoto} target="_blank" rel="noopener noreferrer">
+                                        <img 
+                                          src={sub.frontPhoto} 
+                                          alt="Foto Depan Usaha" 
+                                          style={{ width: '100%', maxHeight: '150px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ccc', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }} 
+                                        />
+                                      </a>
+                                    ) : (
+                                      <div style={{ padding: '30px 10px', background: '#e2e8f0', borderRadius: '8px', fontSize: '12px', color: '#666', fontStyle: 'italic' }}>Tidak Ada Foto</div>
+                                    )}
+                                  </div>
+
+                                  <div style={{ flex: '1', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '11px', color: '#666', marginBottom: '6px', fontWeight: '600' }}>Foto Produk Usaha</div>
+                                    {sub.productPhoto ? (
+                                      <a href={sub.productPhoto} target="_blank" rel="noopener noreferrer">
+                                        <img 
+                                          src={sub.productPhoto} 
+                                          alt="Foto Produk Usaha" 
+                                          style={{ width: '100%', maxHeight: '150px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ccc', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }} 
+                                        />
+                                      </a>
+                                    ) : (
+                                      <div style={{ padding: '30px 10px', background: '#e2e8f0', borderRadius: '8px', fontSize: '12px', color: '#666', fontStyle: 'italic' }}>Tidak Ada Foto</div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))}
+                  {smileSubmissions.length === 0 && (
+                    <tr>
+                      <td colSpan={8} style={{ textAlign: 'center', padding: '40px' }}>Belum ada pengajuan Smile UMKM masuk.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -2238,6 +2222,12 @@ export default function AdminDashboard({
           onClick={() => setActiveTab('submissions')}
         >
           📄 Pengajuan
+        </div>
+        <div 
+          className={`${styles.sidebarItem} ${activeTab === 'smileUmkm' ? styles.active : ''}`}
+          onClick={() => setActiveTab('smileUmkm')}
+        >
+          🛍️ Smile UMKM
         </div>
         <div 
           className={`${styles.sidebarItem} ${activeTab === 'promos' ? styles.active : ''}`}

@@ -170,7 +170,11 @@ export async function registerUser(formData: FormData) {
   };
 
   users.push(newUser);
-  await fs.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
+  try {
+    await fs.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
+  } catch (error) {
+    console.warn("Could not write to users.json (likely in production/read-only environment).");
+  }
   redirect('/login');
 }
 
@@ -618,6 +622,95 @@ export async function uploadCareerImage(formData: FormData) {
   } catch (error) {
     console.error("Error uploading career image:", error);
     return { error: "Gagal mengunggah berkas gambar." };
+  }
+}
+
+// Smile UMKM Submissions
+const SMILE_UMKM_PATH = path.join(process.cwd(), 'src/data/smile-umkm-submissions.json');
+
+export async function getSmileUmkmSubmissions() {
+  try {
+    const data = await fs.readFile(SMILE_UMKM_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function submitSmileUmkm(formData: FormData) {
+  try {
+    const submissions = await getSmileUmkmSubmissions();
+    const uploadDir = path.join(process.cwd(), 'public/uploads/smile-umkm');
+    await fs.mkdir(uploadDir, { recursive: true });
+
+    const uploadFile = async (fileKey: string) => {
+      const file = formData.get(fileKey) as File;
+      if (file && file.size > 0) {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const ext = path.extname(file.name) || '.png';
+        const fileName = `${fileKey}_${Date.now()}${ext}`;
+        await fs.writeFile(path.join(uploadDir, fileName), buffer);
+        return `/uploads/smile-umkm/${fileName}`;
+      }
+      return '';
+    };
+
+    const frontPhotoPath = await uploadFile('frontPhoto');
+    const productPhotoPath = await uploadFile('productPhoto');
+
+    const newSubmission = {
+      id: Date.now(),
+      date: new Date().toLocaleDateString('id-ID'),
+      status: 'Pending',
+      
+      // Applicant data
+      name: formData.get('name') as string,
+      address: formData.get('address') as string,
+      phone: formData.get('phone') as string,
+      email: formData.get('email') as string,
+      
+      // Business data
+      businessName: formData.get('businessName') as string,
+      businessActivity: formData.get('businessActivity') as string,
+      businessAddress: formData.get('businessAddress') as string,
+      frontPhoto: frontPhotoPath,
+      productPhoto: productPhotoPath,
+      
+      // Payment data
+      paymentMethod: formData.get('paymentMethod') as string,
+      bank: formData.get('bank') as string,
+      nmid: formData.get('nmid') as string,
+      monthlyRevenue: Number(formData.get('monthlyRevenue')),
+      monthlyBalance: Number(formData.get('monthlyBalance')),
+      
+      // Verification
+      verifiedData: formData.get('verifiedData') === 'on',
+      termsAccepted: formData.get('termsAccepted') === 'on'
+    };
+
+    submissions.push(newSubmission);
+    await fs.writeFile(SMILE_UMKM_PATH, JSON.stringify(submissions, null, 2));
+    return { success: true };
+  } catch (error) {
+    console.error("Error submitting Smile UMKM:", error);
+    return { error: "Gagal memproses pengajuan Smile UMKM." };
+  }
+}
+
+export async function updateSmileUmkmStatus(id: number, status: string) {
+  try {
+    const submissions = await getSmileUmkmSubmissions();
+    const index = submissions.findIndex((sub: any) => sub.id === id);
+    if (index !== -1) {
+      submissions[index].status = status;
+      await fs.writeFile(SMILE_UMKM_PATH, JSON.stringify(submissions, null, 2));
+      revalidatePath('/admin');
+      return { success: true };
+    }
+    return { error: "Pengajuan tidak ditemukan." };
+  } catch (error) {
+    return { error: "Gagal memperbarui status pengajuan." };
   }
 }
 

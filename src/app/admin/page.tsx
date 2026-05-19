@@ -12,7 +12,8 @@ import {
   getCreditSettings,
   getLoanSettings,
   getDigitalSettings,
-  getCareersSettings
+  getCareersSettings,
+  getSmileUmkmSubmissions
 } from '../actions';
 import { redirect } from 'next/navigation';
 import AdminDashboard from './AdminDashboard';
@@ -34,6 +35,7 @@ export default async function AdminPage() {
   const loans = await getLoanSettings();
   const digital = await getDigitalSettings();
   const careers = await getCareersSettings();
+  const smileUmkm = await getSmileUmkmSubmissions();
 
   return (
     <AdminDashboard 
@@ -47,6 +49,7 @@ export default async function AdminPage() {
       initialLoanSettings={loans}
       initialDigitalSettings={digital}
       initialCareersSettings={careers}
+      initialSmileUmkmSubmissions={smileUmkm}
     />
   );
 }

@@ -7,11 +7,11 @@
     "role": "admin"
   },
   {
-    "id": "1779112225063",
-    "name": "a",
-    "email": "man@gmail.com",
+    "id": "1779179021407",
+    "name": "User ",
+    "email": "user@mibank.com",
     "phone": "0",
-    "password": "12345678",
+    "password": "user123",
     "role": "user"
   }
 ]
