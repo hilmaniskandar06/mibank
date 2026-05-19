@@ -4,8 +4,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "MiBANK - Mitra Pengusaha Indonesia",
-  description: "Temukan berbagai produk dan layanan MiBANK untuk memudahkan transaksi dan mengelola keuangan dengan aman dan nyaman.",
+  title: "Mitra Perbankan - Mitra Pengusaha Indonesia",
+  description: "Temukan berbagai produk dan layanan Mitra Perbankan untuk memudahkan transaksi dan mengelola keuangan dengan aman dan nyaman.",
 };
 
 import { LanguageProvider } from "@/context/LanguageContext";

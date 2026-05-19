@@ -8,17 +8,17 @@ export default async function PromoPage() {
 
   return (
     <TemplatePage 
-      titleId="Promo Terbaru MiBANK" 
-      titleEn="MiBANK Latest Promotions" 
+      titleId="Promo Terbaru Mitra Perbankan Indonesia" 
+      titleEn="Mitra Perbankan Indonesia Latest Promotions" 
       contentId={
         <div>
-          <p>Cek berbagai promo menarik dari kartu kredit dan debit MiBANK untuk keuntungan belanja Anda.</p>
+          <p>Cek berbagai promo menarik dari kartu kredit dan debit Mitra Perbankan Indonesia untuk keuntungan belanja Anda.</p>
           <PromoList promos={promos} />
         </div>
       }
       contentEn={
         <div>
-          <p>Check out various attractive promotions from MiBANK credit and debit cards for your shopping benefits.</p>
+          <p>Check out various attractive promotions from Mitra Perbankan Indonesia credit and debit cards for your shopping benefits.</p>
           <PromoList promos={promos} />
         </div>
       }

@@ -85,6 +85,10 @@
 .status.pending { background: #fff3cd; color: #856404; }
 .status.approved { background: #d4edda; color: #155724; }
 .status.rejected { background: #f8d7da; color: #721c24; }
+.status.interview { background: #cce5ff; color: #004085; }
+.status.diterima { background: #d4edda; color: #155724; }
+.status.ditolak { background: #f8d7da; color: #721c24; }
+
 
 /* Forms */
 .formGroup {
@@ -173,3 +177,182 @@
 .darkMode label {
   color: #ddd;
 }
+
+/* Modal for Applicant Detail Dossier */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modalContent {
+  background: white;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.darkMode .modalContent {
+  background: #1e1e1e;
+  border: 1px solid #333;
+}
+
+.modalHeader {
+  background: var(--primary-color, #003366);
+  color: white;
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 22px;
+  color: white;
+}
+
+.closeModalBtn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modalBody {
+  padding: 30px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.dossierGrid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 30px;
+}
+
+@media (max-width: 768px) {
+  .dossierGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detailSection {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border-left: 4px solid var(--primary-color, #003366);
+}
+
+.darkMode .detailSection {
+  background: #2a2a2a;
+  border-left-color: #66b3ff;
+}
+
+.detailSection h4 {
+  margin: 0 0 15px 0;
+  color: var(--primary-color, #003366);
+  font-size: 16px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.darkMode .detailSection h4 {
+  color: #66b3ff;
+  border-bottom-color: #444;
+}
+
+.detailRow {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.detailRow strong {
+  color: #555;
+}
+
+.darkMode .detailRow strong {
+  color: #bbb;
+}
+
+.detailRow span {
+  color: #111;
+}
+
+.darkMode .detailRow span {
+  color: #eee;
+}
+
+.profilePhotos {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.photoWrapper {
+  background: #f1f3f5;
+  border-radius: 8px;
+  overflow: hidden;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.darkMode .photoWrapper {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.photoLabel {
+  background: #e9ecef;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.darkMode .photoLabel {
+  background: #333;
+  color: #ccc;
+}
+
+.photoWrapper img {
+  width: 100%;
+  height: auto;
+  max-height: 250px;
+  object-fit: contain;
+  display: block;
+}
+
+.docLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-color, #003366);
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.darkMode .docLink {
+  color: #66b3ff;
+}
+

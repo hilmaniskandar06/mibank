@@ -1,0 +1,46 @@
+{
+  "title_id": "Layanan Buka Akun Digital Banking Partner",
+  "desc_id": "Nikmati kemudahan layanan perbankan digital generasi terbaru. Bandingkan dan buka rekening bank digital terkemuka di Indonesia secara instan di bawah ini.",
+  "banks": [
+    {
+      "name": "Blu by BCA Digital",
+      "code": "BLU",
+      "url": "https://blubybcadigital.id"
+    },
+    {
+      "name": "Jenius (BTPN)",
+      "code": "JENIUS",
+      "url": "https://www.jenius.com"
+    },
+    {
+      "name": "Bank Jago",
+      "code": "JAGO",
+      "url": "https://www.jago.com"
+    },
+    {
+      "name": "Allo Bank",
+      "code": "ALLO",
+      "url": "https://www.allobank.com"
+    },
+    {
+      "name": "Digibank Indonesia",
+      "code": "DIGIBANK",
+      "url": "https://www.dbs.id/digibank/id"
+    },
+    {
+      "name": "TMRW by UOB",
+      "code": "TMRW",
+      "url": "https://www.tmrwbyuob.com/id/id.html"
+    },
+    {
+      "name": "SeaBank Indonesia",
+      "code": "SEABANK",
+      "url": "https://www.seabank.co.id"
+    },
+    {
+      "name": "Neo Bank (BNC)",
+      "code": "NEOBANK",
+      "url": "https://www.bankneocommerce.co.id"
+    }
+  ]
+}

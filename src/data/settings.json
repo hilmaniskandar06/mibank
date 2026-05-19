@@ -1,19 +1,15 @@
 {
   "hero": {
     "title_id": "Solusi Keuangan Terpercaya Untuk Bisnis Anda",
-    "title_en": "Trusted Financial Solutions For Your Business",
-    "desc_id": "MiBANK hadir sebagai mitra strategis pengusaha Indonesia untuk tumbuh dan berkembang bersama.",
-    "desc_en": "MiBANK is here as a strategic partner for Indonesian entrepreneurs to grow and flourish together."
+    "desc_id": "Mitra Perbankan hadir sebagai mitra strategis pengusaha Indonesia untuk tumbuh dan berkembang bersama."
   },
   "about": {
     "visi_id": "Menjadi mitra perbankan terdepan bagi pengusaha di Indonesia.",
-    "visi_en": "To be the leading banking partner for entrepreneurs in Indonesia.",
-    "misi_id": "Menyediakan layanan perbankan yang aman, inovatif, dan berorientasi pada kesuksesan nasabah.",
-    "misi_en": "To provide secure, innovative, and customer success-oriented banking services."
+    "misi_id": "Menyediakan layanan perbankan yang aman, inovatif, dan berorientasi pada kesuksesan nasabah."
   },
   "images": {
-    "hero": "/images/hero.png",
-    "about": "/images/company_new.png"
+    "hero": "/images/hero_1779093665083.png",
+    "about": "/images/about_1779093738537.png"
   },
   "contact": {
     "address": "Jl. Jend. Sudirman Kav. 1, Jakarta Pusat, Indonesia",

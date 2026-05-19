@@ -1,9 +1,17 @@
 [
   {
     "id": "admin-1",
-    "name": "Admin MiBANK",
+    "name": "Admin Mitra Perbankan Indonesia",
     "email": "admin@mibank.com",
     "password": "admin123",
     "role": "admin"
+  },
+  {
+    "id": "1779112225063",
+    "name": "a",
+    "email": "man@gmail.com",
+    "phone": "0",
+    "password": "12345678",
+    "role": "user"
   }
 ]

@@ -1,0 +1,47 @@
+{
+  "title_id": "Layanan Pengajuan Kartu Kredit Partner",
+  "desc_id": "Temukan dan bandingkan berbagai produk kartu kredit terbaik dari bank mitra kami di Indonesia. Ajukan langsung di tautan resmi masing-masing bank partner di bawah ini.",
+  "banks": [
+    {
+      "name": "Bank Central Asia (BCA)",
+      "code": "BCA",
+      "url": "https://www.bca.co.id/id/individu/produk/kartu-kredit",
+      "logo": "/uploads/logos/logo_1779112341436.png"
+    },
+    {
+      "name": "Bank Mandiri",
+      "code": "MANDIRI",
+      "url": "https://www.bankmandiri.co.id/kartu-kredit"
+    },
+    {
+      "name": "Bank Rakyat Indonesia (BRI)",
+      "code": "BRI",
+      "url": "https://kartukredit.bri.co.id"
+    },
+    {
+      "name": "Bank Negara Indonesia (BNI)",
+      "code": "BNI",
+      "url": "https://www.bni.co.id/id-id/individu/simpanan-kartu/kartu-kredit"
+    },
+    {
+      "name": "Bank CIMB Niaga",
+      "code": "CIMB",
+      "url": "https://www.cimbniaga.co.id/id/personal/kartu-kredit"
+    },
+    {
+      "name": "Bank Danamon",
+      "code": "DANAMON",
+      "url": "https://www.danamon.co.id/id/Personal/Kartu-Kredit"
+    },
+    {
+      "name": "Permata Bank",
+      "code": "PERMATA",
+      "url": "https://www.permatabank.com/id/kartu-kredit-ritel"
+    },
+    {
+      "name": "Bank Mega",
+      "code": "MEGA",
+      "url": "https://www.bankmega.com/id/kartu-kredit"
+    }
+  ]
+}

@@ -52,7 +52,7 @@ const Navbar = ({ session }: { session: any }) => {
           {/* Logo */}
           <Link href="/" className={styles.logo}>
             <div className={styles.logoIcon}>M</div>
-            <span>MiBANK</span>
+            <span>Mitra Perbankan</span>
           </Link>
 
           {/* Nav Links */}
@@ -61,6 +61,7 @@ const Navbar = ({ session }: { session: any }) => {
             <Link href="/layanan" onClick={() => setIsOpen(false)}>{t.layanan}</Link>
             <Link href="/promo" onClick={() => setIsOpen(false)}>{t.promo}</Link>
             <Link href="/webform" onClick={() => setIsOpen(false)}>{t.webform}</Link>
+            <Link href="/karir" onClick={() => setIsOpen(false)}>{t.karir}</Link>
             <Link href="/chat" onClick={() => setIsOpen(false)}>{t.chat}</Link>
             
             {/* Mobile Actions (Hidden on Desktop) */}

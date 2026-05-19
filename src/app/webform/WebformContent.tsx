@@ -38,7 +38,7 @@ export default function WebformContent() {
     <div className={styles.webformContainer}>
       <div className={styles.formHeader}>
         <h1>{lang === 'ID' ? 'Buka Rekening Online' : 'Open Account Online'}</h1>
-        <p>{lang === 'ID' ? 'Isi data diri Anda untuk memulai perjalanan finansial bersama MiBANK.' : 'Fill in your details to start your financial journey with MiBANK.'}</p>
+        <p>{lang === 'ID' ? 'Isi data diri Anda untuk memulai perjalanan finansial bersama Mitra Perbankan Indonesia.' : 'Fill in your details to start your financial journey with Mitra Perbankan Indonesia.'}</p>
       </div>
 
       <form action={handleSubmit} className={styles.form}>
@@ -99,8 +99,8 @@ export default function WebformContent() {
           <input type="checkbox" id="terms" required />
           <label htmlFor="terms">
             {lang === 'ID' 
-              ? 'Saya setuju dengan syarat dan ketentuan yang berlaku di MiBANK.' 
-              : 'I agree to the terms and conditions applicable at MiBANK.'}
+              ? 'Saya setuju dengan syarat dan ketentuan yang berlaku di Mitra Perbankan Indonesia.' 
+              : 'I agree to the terms and conditions applicable at Mitra Perbankan Indonesia.'}
           </label>
         </div>
 

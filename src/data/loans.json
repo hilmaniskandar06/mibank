@@ -1,0 +1,36 @@
+{
+  "title_id": "Layanan Pengajuan Pinjaman Partner",
+  "desc_id": "Bandingkan dan pilih produk pinjaman perbankan terbaik, mulai dari KPR, KTA, hingga kredit kendaraan bermotor langsung di bank partner resmi pilihan Anda.",
+  "banks": [
+    {
+      "name": "Bank Central Asia (BCA)",
+      "code": "BCA",
+      "url": "https://www.bca.co.id/id/individu/produk/pinjaman"
+    },
+    {
+      "name": "Bank Mandiri",
+      "code": "MANDIRI",
+      "url": "https://www.bankmandiri.co.id/pinjaman"
+    },
+    {
+      "name": "Bank Rakyat Indonesia (BRI)",
+      "code": "BRI",
+      "url": "https://bri.co.id/pinjaman-kredit"
+    },
+    {
+      "name": "Bank Negara Indonesia (BNI)",
+      "code": "BNI",
+      "url": "https://www.bni.co.id/id-id/individu/pinjaman"
+    },
+    {
+      "name": "Bank Tabungan Negara (BTN)",
+      "code": "BTN",
+      "url": "https://www.btn.co.id/id/Konvensional/Product-Link/Produk-Kredit/Kredit-Konsumer"
+    },
+    {
+      "name": "Bank CIMB Niaga",
+      "code": "CIMB",
+      "url": "https://www.cimbniaga.co.id/id/personal/pinjaman"
+    }
+  ]
+}

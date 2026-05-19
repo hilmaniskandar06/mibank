@@ -190,7 +190,7 @@ export default function VideoCall() {
         <div className={styles.securityOverlay}>
           <div className={styles.watermarkTL}>SECURE-ID: {Math.random().toString(36).substr(2, 6).toUpperCase()}</div>
           <div className={styles.watermarkTR}>{new Date().toLocaleTimeString()}</div>
-          <div className={styles.watermarkBL}>MiBANK ANTI-FRAUD SYSTEM</div>
+          <div className={styles.watermarkBL}>Mitra Perbankan Indonesia ANTI-FRAUD SYSTEM</div>
           <div className={styles.watermarkBR}>AES-256 E2EE</div>
           {isSharing && (
             <div className={styles.shareShield}>

@@ -22,28 +22,29 @@ const Footer = ({ settings }: { settings: any }) => {
           <ul>
             <li><Link href="/layanan">E-Banking</Link></li>
             <li><Link href="/layanan">Layanan Transaksi</Link></li>
-            <li><Link href="/layanan">MiBANK Syariah</Link></li>
-            <li><Link href="/layanan">Reward MiBANK</Link></li>
+            <li><Link href="/layanan">Mitra Perbankan Syariah</Link></li>
+            <li><Link href="/layanan">Reward Mitra Perbankan</Link></li>
             <li><Link href="/layanan">Kurs eRate</Link></li>
           </ul>
         </div>
         
         <div className={styles.footerCol}>
-          <h4>Tentang MiBANK</h4>
+          <h4>Tentang Mitra Perbankan</h4>
           <ul>
             <li><Link href="/tentang">Profil Perusahaan</Link></li>
             <li><Link href="/tentang">Hubungan Investor</Link></li>
             <li><Link href="/tentang">Tata Kelola Perusahaan</Link></li>
             <li><Link href="/tentang">Tanggung Jawab Sosial</Link></li>
             <li><Link href="/tentang">Berita & Fitur</Link></li>
+            <li><Link href="/karir">Karir</Link></li>
           </ul>
         </div>
         
         <div className={styles.footerCol}>
           <h4>Hubungi Kami</h4>
           <div className={styles.contactInfo}>
-            <p>📍 {settings?.contact?.address || 'Menara MiBANK, Jakarta Pusat'}</p>
-            <p>📞 {settings?.contact?.phone || 'Halo MiBANK 1500999'}</p>
+            <p>📍 {settings?.contact?.address || 'Menara Mitra Perbankan, Jakarta Pusat'}</p>
+            <p>📞 {settings?.contact?.phone || 'Halo Mitra Perbankan 1500999'}</p>
             <p>📧 {settings?.contact?.email || 'support@mibank.co.id'}</p>
             <div className={styles.socialLinks}>
               <Link href="/" className={styles.socialIcon}>FB</Link>
@@ -56,7 +57,7 @@ const Footer = ({ settings }: { settings: any }) => {
       </div>
       
       <div className={`container ${styles.footerBottom}`}>
-        <p>&copy; 2026 PT MITRA PERBANKAN INDONESIA. All Rights Reserved.</p>
+        <p>&copy; 2026 PT MITRA PERBANKAN. All Rights Reserved.</p>
         <div className={styles.bottomLinks}>
           <Link href="/">SBDK</Link>
           <Link href="/">Kebijakan Privasi</Link>

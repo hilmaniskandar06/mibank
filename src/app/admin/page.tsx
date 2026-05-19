@@ -6,7 +6,13 @@ import {
   getSession,
   addPromo,
   deletePromo,
-  updateSettings
+  updateSettings,
+  getJobApplications,
+  getSavingsSettings,
+  getCreditSettings,
+  getLoanSettings,
+  getDigitalSettings,
+  getCareersSettings
 } from '../actions';
 import { redirect } from 'next/navigation';
 import AdminDashboard from './AdminDashboard';
@@ -22,6 +28,12 @@ export default async function AdminPage() {
   const submissions = await getSubmissions();
   const users = await getUsers();
   const settings = await getSettings();
+  const applications = await getJobApplications();
+  const savings = await getSavingsSettings();
+  const credit = await getCreditSettings();
+  const loans = await getLoanSettings();
+  const digital = await getDigitalSettings();
+  const careers = await getCareersSettings();
 
   return (
     <AdminDashboard 
@@ -29,6 +41,12 @@ export default async function AdminPage() {
       initialSubmissions={submissions}
       initialUsers={users}
       initialSettings={settings}
+      initialApplications={applications}
+      initialSavingsSettings={savings}
+      initialCreditSettings={credit}
+      initialLoanSettings={loans}
+      initialDigitalSettings={digital}
+      initialCareersSettings={careers}
     />
   );
 }

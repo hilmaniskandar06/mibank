@@ -1,0 +1,68 @@
+{
+  "title_id": "Layanan Buka Rekening Simpanan Partner",
+  "desc_id": "Mitra Perbankan memudahkan Anda untuk membandingkan dan membuka rekening simpanan/tabungan langsung di berbagai bank terkemuka di Indonesia. Silakan pilih bank partner kami di bawah ini untuk menuju halaman pembukaan rekening resmi.",
+  "banks": [
+    {
+      "name": "Bank Central Asia (BCA)",
+      "code": "BCA",
+      "url": "https://www.bca.co.id/id/individu/produk/simpanan/Tahapan-BCA",
+      "logo": "/uploads/logos/logo_1779109026234.png"
+    },
+    {
+      "name": "Bank Mandiri",
+      "code": "MANDIRI",
+      "url": "https://join.bankmandiri.co.id"
+    },
+    {
+      "name": "Bank Rakyat Indonesia (BRI)",
+      "code": "BRI",
+      "url": "https://bukarekening.bri.co.id"
+    },
+    {
+      "name": "Bank Negara Indonesia (BNI)",
+      "code": "BNI",
+      "url": "https://www.bni.co.id/id-id/individu/simpanan-kartu/buka-rekening-digital"
+    },
+    {
+      "name": "Bank Syariah Indonesia (BSI)",
+      "code": "BSI",
+      "url": "https://www.bankbsi.co.id"
+    },
+    {
+      "name": "Bank Tabungan Negara (BTN)",
+      "code": "BTN",
+      "url": "https://www.btn.co.id"
+    },
+    {
+      "name": "Bank CIMB Niaga",
+      "code": "CIMB",
+      "url": "https://www.cimbniaga.co.id"
+    },
+    {
+      "name": "Bank Danamon",
+      "code": "DANAMON",
+      "url": "https://www.danamon.co.id"
+    },
+    {
+      "name": "Permata Bank",
+      "code": "PERMATA",
+      "url": "https://www.permatabank.com"
+    },
+    {
+      "name": "Maybank Indonesia",
+      "code": "MAYBANK",
+      "url": "https://www.maybank.co.id"
+    },
+    {
+      "name": "Bank Mega",
+      "code": "MEGA",
+      "url": "https://www.bankmega.com"
+    },
+    {
+      "name": "OCBC Indonesia",
+      "code": "OCBC",
+      "url": "https://www.ocbc.id/id",
+      "logo": ""
+    }
+  ]
+}

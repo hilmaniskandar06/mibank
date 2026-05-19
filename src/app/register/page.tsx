@@ -38,7 +38,7 @@ export default function RegisterPage() {
 
             <div style={{ marginBottom: '30px' }}>
               <label style={{ display: 'flex', gap: '10px', alignItems: 'center', fontSize: '14px' }}>
-                <input type="checkbox" required /> Saya menyetujui Syarat dan Ketentuan MiBANK
+                <input type="checkbox" required /> Saya menyetujui Syarat dan Ketentuan Mitra Perbankan Indonesia
               </label>
             </div>
 
@@ -78,7 +78,7 @@ export default function RegisterPage() {
 
             <div style={{ marginBottom: '30px' }}>
               <label style={{ display: 'flex', gap: '10px', alignItems: 'center', fontSize: '14px' }}>
-                <input type="checkbox" required /> I agree to MiBANK's Terms and Conditions
+                <input type="checkbox" required /> I agree to Mitra Perbankan Indonesia's Terms and Conditions
               </label>
             </div>
 

@@ -1,0 +1,119 @@
+{
+  "title_id": "Bangun Karir Bersama Kami",
+  "title_en": "Build Your Career With Us",
+  "desc_id": "Temukan berbagai peluang karir menarik dan tumbuh bersama salah satu mitra perbankan terpercaya di Indonesia.",
+  "desc_en": "Find various attractive career opportunities and grow together with one of the trusted banking partners in Indonesia.",
+  "vacancies": [
+    {
+      "id": "teller",
+      "titleId": "Teller (Frontliner)",
+      "titleEn": "Teller (Frontliner)",
+      "locId": "Kantor Cabang Jakarta",
+      "locEn": "Jakarta Branch Office",
+      "typeId": "Penuh Waktu",
+      "typeEn": "Full Time",
+      "code": "TLR",
+      "image": "/images/career_teller.png",
+      "overviewId": "Bertanggung jawab melayani transaksi tunai dan non-tunai nasabah secara cepat, akurat, dan ramah sesuai standar operasional bank, serta menjaga rekonsiliasi kas harian.",
+      "overviewEn": "Responsible for serving customers cash and non-cash transactions quickly, accurately, and friendly according to bank operational standards, and maintaining daily cash reconciliation.",
+      "responsibilitiesId": [
+        "Melayani penarikan, penyetoran, dan transfer dana nasabah.",
+        "Melakukan verifikasi tanda tangan dan keaslian uang kertas.",
+        "Menyeimbangkan laci kas secara akurat di setiap akhir hari kerja.",
+        "Memberikan edukasi produk simpanan dasar kepada nasabah."
+      ],
+      "responsibilitiesEn": [
+        "Serve customer withdrawals, deposits, and fund transfers.",
+        "Verify signatures and authenticity of banknotes.",
+        "Balance the cash drawer accurately at the end of each working day.",
+        "Provide basic savings product education to customers."
+      ],
+      "requirementsId": [
+        "Pendidikan minimal D3 / S1 semua jurusan.",
+        "Indeks Prestasi Kumulatif (IPK) minimal 3.00.",
+        "Berpenampilan menarik, rapi, dan memiliki kemampuan komunikasi yang baik.",
+        "Teliti, jujur, disiplin, dan memiliki integritas yang tinggi."
+      ],
+      "requirementsEn": [
+        "Minimum Associate / Bachelor degree in any major.",
+        "Minimum GPA of 3.00.",
+        "Good looking, neat, and has good communication skills.",
+        "Detail-oriented, honest, disciplined, and has high integrity."
+      ]
+    },
+    {
+      "id": "cs",
+      "titleId": "Customer Service Representative",
+      "titleEn": "Customer Service Representative",
+      "locId": "Kantor Cabang Jakarta",
+      "locEn": "Jakarta Branch Office",
+      "typeId": "Penuh Waktu",
+      "typeEn": "Full Time",
+      "code": "CSR",
+      "image": "/images/career_cs.png",
+      "overviewId": "Bertanggung jawab membantu nasabah dalam pembukaan rekening baru, memberikan informasi produk perbankan, menangani keluhan, serta menjaga loyalitas nasabah dengan standar pelayanan prima.",
+      "overviewEn": "Responsible for assisting customers in opening new accounts, providing banking product information, handling complaints, and maintaining customer loyalty with prime service standards.",
+      "responsibilitiesId": [
+        "Melayani proses pembukaan, perubahan, dan penutupan akun perbankan nasabah.",
+        "Memberikan informasi produk simpanan, pinjaman, dan layanan digital bank.",
+        "Menangani keluhan nasabah dan mencarikan solusi terbaik dengan sopan.",
+        "Membantu nasabah yang mengalami kendala teknis kartu ATM atau mobile banking."
+      ],
+      "responsibilitiesEn": [
+        "Serve the opening, modification, and closing of customer banking accounts.",
+        "Provide info on savings, loans, and digital banking services.",
+        "Handle customer complaints and find the best solution politely.",
+        "Assist customers experiencing technical issues with ATM cards or mobile banking."
+      ],
+      "requirementsId": [
+        "Pendidikan minimal S1 semua jurusan.",
+        "IPK minimal 3.00.",
+        "Memiliki kemampuan komunikasi, persuasi, dan interpersonal yang sangat baik.",
+        "Mampu berbahasa Inggris secara aktif menjadi nilai tambah."
+      ],
+      "requirementsEn": [
+        "Minimum Bachelor degree in any major.",
+        "Minimum GPA of 3.00.",
+        "Has excellent communication, persuasion, and interpersonal skills.",
+        "Ability to speak active English is a plus."
+      ]
+    },
+    {
+      "id": "it",
+      "titleId": "IT Support Specialist",
+      "titleEn": "IT Support Specialist",
+      "locId": "Kantor Pusat Jakarta",
+      "locEn": "Jakarta Head Office",
+      "typeId": "Penuh Waktu",
+      "typeEn": "Full Time",
+      "code": "ITS",
+      "image": "/images/career_it.png",
+      "overviewId": "Bertanggung jawab menjaga keandalan infrastruktur IT, memelihara perangkat keras, lunak, jaringan komunikasi kantor bank, serta melakukan troubleshoot masalah teknis operasional harian.",
+      "overviewEn": "Responsible for maintaining IT infrastructure reliability, hardware, software, bank communication networks, and troubleshooting daily operational technical issues.",
+      "responsibilitiesId": [
+        "Memelihara keandalan perangkat keras, lunak komputer, dan jaringan LAN/WAN.",
+        "Menyelesaikan troubleshooting masalah teknis perangkat kerja staf bank.",
+        "Memastikan keamanan data internal perbankan berjalan sesuai kebijakan keamanan informasi.",
+        "Melakukan backup data rutin dan pemeliharaan server secara berkala."
+      ],
+      "responsibilitiesEn": [
+        "Maintain hardware, software, and LAN/WAN network reliability.",
+        "Resolve technical troubleshooting issues for bank staff workstations.",
+        "Ensure internal banking data security aligns with information security policy.",
+        "Perform routine data backups and regular server maintenance."
+      ],
+      "requirementsId": [
+        "Pendidikan S1 Teknik Informatika / Sistem Informasi / Ilmu Komputer.",
+        "IPK minimal 3.00.",
+        "Memiliki pengetahuan mendalam mengenai sistem operasi, jaringan komputer (TCP/IP), dan database.",
+        "Memiliki inisiatif tinggi dan kemampuan problem-solving yang sangat baik."
+      ],
+      "requirementsEn": [
+        "Bachelor degree in Computer Science / Information Systems / Informatics Engineering.",
+        "Minimum GPA of 3.00.",
+        "Deep knowledge of operating systems, computer networks (TCP/IP), and databases.",
+        "Has high initiative and excellent problem-solving skills."
+      ]
+    }
+  ]
+}

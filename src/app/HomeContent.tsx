@@ -24,7 +24,7 @@ export default function HomeContent({ initialPromos, settings }: { initialPromos
           </div>
         </div>
         <div className={styles.heroImage}>
-          <img src={settings.images?.hero || "/images/hero.png"} alt="MiBANK Digital Banking" />
+          <img src={settings.images?.hero || "/images/hero.png"} alt="Mitra Perbankan Indonesia Digital Banking" />
         </div>
       </section>
 
@@ -63,10 +63,10 @@ export default function HomeContent({ initialPromos, settings }: { initialPromos
           </div>
           <div className={styles.serviceGrid}>
             {[
-              { icon: '💳', title: lang === 'ID' ? 'Kartu Kredit' : 'Credit Card', desc: lang === 'ID' ? 'Pilihan kartu yang sesuai gaya hidup Anda.' : 'Cards tailored to your lifestyle.', link: '/produk' },
-              { icon: '💰', title: lang === 'ID' ? 'Simpanan' : 'Savings', desc: lang === 'ID' ? 'Kelola tabungan dengan bunga kompetitif.' : 'Manage savings with competitive rates.', link: '/produk' },
-              { icon: '🏢', title: lang === 'ID' ? 'Pinjaman Bisnis' : 'Business Loan', desc: lang === 'ID' ? 'Dukungan modal untuk UMKM.' : 'Capital support for SMEs.', link: '/bisnis' },
-              { icon: '📱', title: 'Digital Banking', desc: lang === 'ID' ? 'Transaksi kapan saja.' : 'Transact anytime.', link: '/layanan' }
+              { icon: '💳', title: lang === 'ID' ? 'Kartu Kredit' : 'Credit Card', desc: lang === 'ID' ? 'Pilihan kartu yang sesuai gaya hidup Anda.' : 'Cards tailored to your lifestyle.', link: '/produk/kartu-kredit' },
+              { icon: '💰', title: lang === 'ID' ? 'Simpanan' : 'Savings', desc: lang === 'ID' ? 'Kelola tabungan dengan bunga kompetitif.' : 'Manage savings with competitive rates.', link: '/produk/simpanan' },
+              { icon: '🏢', title: lang === 'ID' ? 'Pinjaman Bisnis' : 'Business Loan', desc: lang === 'ID' ? 'Dukungan modal untuk UMKM.' : 'Capital support for SMEs.', link: '/produk/pinjaman' },
+              { icon: '📱', title: 'Digital Banking', desc: lang === 'ID' ? 'Transaksi kapan saja.' : 'Transact anytime.', link: '/produk/digital-banking' }
             ].map((s, idx) => (
               <Link href={s.link} key={idx} className={styles.serviceCard}>
                 <div className={styles.serviceIcon}>{s.icon}</div>
@@ -85,7 +85,7 @@ export default function HomeContent({ initialPromos, settings }: { initialPromos
             <div>
               <h2>{t.tentangTitle}</h2>
               <p style={{ marginTop: '20px' }}>
-                {lang === 'ID' ? 'MiBANK hadir untuk melayani kebutuhan finansial masyarakat Indonesia dengan teknologi modern dan sentuhan personal.' : 'MiBANK is here to serve the financial needs of the Indonesian people with modern technology and a personal touch.'}
+                {lang === 'ID' ? 'Mitra Perbankan Indonesia hadir untuk melayani kebutuhan finansial masyarakat Indonesia dengan teknologi modern dan sentuhan personal.' : 'Mitra Perbankan Indonesia is here to serve the financial needs of the Indonesian people with modern technology and a personal touch.'}
               </p>
               <div style={{ marginTop: '30px' }}>
                 <h3>{lang === 'ID' ? 'Visi Kami' : 'Our Vision'}</h3>
@@ -95,7 +95,7 @@ export default function HomeContent({ initialPromos, settings }: { initialPromos
               </div>
             </div>
             <div className={styles.aboutImg}>
-              <img src={settings.images?.about || "/images/company.jpg"} alt="MiBANK Tower" />
+              <img src={settings.images?.about || "/images/company.jpg"} alt="Mitra Perbankan Indonesia Tower" />
             </div>
           </div>
         </div>

@@ -5,8 +5,8 @@ export default function IndividuPage() {
     <TemplatePage 
       titleId="Layanan Individu" 
       titleEn="Individual Services" 
-      contentId={<p>Selamat datang di layanan perbankan individu MiBANK. Kami menyediakan solusi tabungan, kartu kredit, dan pinjaman pribadi yang sesuai dengan kebutuhan Anda.</p>}
-      contentEn={<p>Welcome to MiBANK individual banking. We provide savings, credit cards, and personal loan solutions tailored to your needs.</p>}
+      contentId={<p>Selamat datang di layanan perbankan individu Mitra Perbankan Indonesia. Kami menyediakan solusi tabungan, kartu kredit, dan pinjaman pribadi yang sesuai dengan kebutuhan Anda.</p>}
+      contentEn={<p>Welcome to Mitra Perbankan Indonesia individual banking. We provide savings, credit cards, and personal loan solutions tailored to your needs.</p>}
     />
   );
 }

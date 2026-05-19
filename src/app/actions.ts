@@ -11,6 +11,8 @@ const PROMOS_PATH = path.join(process.cwd(), 'src/data/promos.json');
 const USERS_PATH = path.join(process.cwd(), 'src/data/users.json');
 const SUBMISSIONS_PATH = path.join(process.cwd(), 'src/data/submissions.json');
 const SETTINGS_PATH = path.join(process.cwd(), 'src/data/settings.json');
+const APPLICATIONS_PATH = path.join(process.cwd(), 'src/data/applications.json');
+
 
 export async function getPromos() {
   try {
@@ -44,9 +46,7 @@ export async function addPromo(formData: FormData) {
   const newPromo = {
     id: Date.now(),
     title_id: formData.get('title_id') as string,
-    title_en: formData.get('title_en') as string,
     desc_id: formData.get('desc_id') as string,
-    desc_en: formData.get('desc_en') as string,
     image: imagePath
   };
   
@@ -62,6 +62,40 @@ export async function deletePromo(id: number) {
   revalidatePath('/');
 }
 
+export async function updatePromo(formData: FormData) {
+  const data = await getPromos();
+  const id = Number(formData.get('id'));
+  
+  const promoIndex = data.findIndex((p: any) => p.id === id);
+  if (promoIndex === -1) return { error: 'Promo not found' };
+
+  let imagePath = data[promoIndex].image;
+  const imageFile = formData.get('promo_image') as File;
+  
+  if (imageFile && imageFile.size > 0) {
+    try {
+      const buffer = Buffer.from(await imageFile.arrayBuffer());
+      const fileName = `promo_${Date.now()}.png`;
+      const imagesDir = path.join(process.cwd(), 'public/images');
+      await fs.writeFile(path.join(imagesDir, fileName), buffer);
+      imagePath = `/images/${fileName}`;
+    } catch (err) {
+      console.error("Gagal mengunggah gambar promo:", err);
+    }
+  }
+
+  data[promoIndex] = {
+    ...data[promoIndex],
+    title_id: formData.get('title_id') as string,
+    desc_id: formData.get('desc_id') as string,
+    image: imagePath
+  };
+  
+  await fs.writeFile(PROMOS_PATH, JSON.stringify(data, null, 2));
+  revalidatePath('/');
+  return { success: true };
+}
+
 // User Actions
 export async function getUsers() {
   try {
@@ -71,6 +105,52 @@ export async function getUsers() {
     return [];
   }
 }
+
+export async function adminAddUser(formData: FormData) {
+  const users = await getUsers();
+  const email = formData.get('email') as string;
+
+  if (users.find((u: any) => u.email === email)) {
+    return { error: 'Email already registered' };
+  }
+
+  const newUser = {
+    id: Date.now().toString(),
+    name: formData.get('name') as string,
+    email: email,
+    phone: formData.get('phone') as string || '',
+    password: formData.get('password') as string,
+    role: formData.get('role') as string || 'user'
+  };
+
+  users.push(newUser);
+  await fs.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
+  revalidatePath('/admin');
+  return { success: true };
+}
+
+export async function adminUpdateUserRole(formData: FormData) {
+  const users = await getUsers();
+  const id = formData.get('id') as string;
+  const newRole = formData.get('role') as string;
+
+  const userIndex = users.findIndex((u: any) => u.id === id);
+  if (userIndex !== -1) {
+    users[userIndex].role = newRole;
+    await fs.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
+    revalidatePath('/admin');
+    return { success: true };
+  }
+  return { error: 'User not found' };
+}
+
+export async function adminDeleteUser(id: string) {
+  let users = await getUsers();
+  users = users.filter((u: any) => u.id !== id);
+  await fs.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
+  revalidatePath('/admin');
+}
+
 
 export async function registerUser(formData: FormData) {
   const users = await getUsers();
@@ -84,6 +164,7 @@ export async function registerUser(formData: FormData) {
     id: Date.now().toString(),
     name: formData.get('name') as string,
     email: email,
+    phone: formData.get('phone') as string || '',
     password: formData.get('password') as string,
     role: 'user'
   };
@@ -166,8 +247,8 @@ export async function getSettings() {
     return JSON.parse(data);
   } catch (err) {
     return {
-      hero: { title_id: "", title_en: "", desc_id: "", desc_en: "" },
-      about: { visi_id: "", visi_en: "", misi_id: "", misi_en: "" },
+      hero: { title_id: "", desc_id: "" },
+      about: { visi_id: "", misi_id: "" },
       images: { hero: "/images/hero.png", about: "/images/company.jpg" },
       contact: { address: "", phone: "", email: "" }
     };
@@ -209,15 +290,11 @@ export async function updateSettings(formData: FormData) {
     const settings = {
       hero: {
         title_id: formData.get('hero_title_id') as string,
-        title_en: formData.get('hero_title_en') as string,
         desc_id: formData.get('hero_desc_id') as string,
-        desc_en: formData.get('hero_desc_en') as string,
       },
       about: {
         visi_id: formData.get('visi_id') as string,
-        visi_en: formData.get('visi_en') as string,
         misi_id: formData.get('misi_id') as string,
-        misi_en: formData.get('misi_en') as string,
       },
       images: {
         hero: heroImagePath,
@@ -238,3 +315,312 @@ export async function updateSettings(formData: FormData) {
     return { error: "Gagal memperbarui pengaturan." };
   }
 }
+
+export async function getJobApplications() {
+  try {
+    const data = await fs.readFile(APPLICATIONS_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function submitJobApplication(formData: FormData) {
+  try {
+    const applications = await getJobApplications();
+    
+    // Helper to upload files safely
+    const uploadFile = async (fileKey: string, prefix: string) => {
+      const file = formData.get(fileKey) as File;
+      if (file && file.size > 0) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const ext = path.extname(file.name) || '.pdf';
+        const fileName = `${prefix}_${Date.now()}${ext}`;
+        const dir = path.join(process.cwd(), 'public/uploads/career');
+        await fs.mkdir(dir, { recursive: true });
+        await fs.writeFile(path.join(dir, fileName), buffer);
+        return `/uploads/career/${fileName}`;
+      }
+      return "";
+    };
+
+    const cvPath = await uploadFile('cv', 'cv');
+    const ktpPath = await uploadFile('ktpScan', 'ktp');
+    const ijazahPath = await uploadFile('ijazahScan', 'ijazah');
+    const pasFotoPath = await uploadFile('pasFoto', 'pasfoto');
+    const fotoBadanPath = await uploadFile('fotoBadan', 'fotobadan');
+
+    const newApplication = {
+      id: Date.now(),
+      date: new Date().toLocaleDateString('id-ID'),
+      status: 'Pending',
+      position: formData.get('position') as string,
+      
+      // Personal Data
+      name: formData.get('name') as string,
+      nik: formData.get('nik') as string,
+      birthPlace: formData.get('birthPlace') as string,
+      birthDate: formData.get('birthDate') as string,
+      gender: formData.get('gender') as string,
+      religion: formData.get('religion') as string,
+      maritalStatus: formData.get('maritalStatus') as string,
+      address: formData.get('address') as string,
+      
+      // Contacts
+      phone: formData.get('phone') as string,
+      phoneAlt: formData.get('phoneAlt') as string,
+      email: formData.get('email') as string,
+      
+      // Education
+      eduUniv: formData.get('eduUniv') as string,
+      eduFaculty: formData.get('eduFaculty') as string,
+      eduMajor: formData.get('eduMajor') as string,
+      eduYears: formData.get('eduYears') as string,
+      eduGpa: formData.get('eduGpa') as string,
+      
+      // Achievements & Experience
+      achievements: formData.get('achievements') as string,
+      experience: formData.get('experience') as string,
+      
+      // Statements
+      willingPlacement: formData.get('willingPlacement') as string,
+      noFamilyRelation: formData.get('noFamilyRelation') as string,
+      motivation: formData.get('motivation') as string,
+      
+      // Files
+      cv: cvPath,
+      ktpScan: ktpPath,
+      ijazahScan: ijazahPath,
+      pasFoto: pasFotoPath,
+      fotoBadan: fotoBadanPath
+    };
+
+    applications.push(newApplication);
+    await fs.mkdir(path.dirname(APPLICATIONS_PATH), { recursive: true });
+    await fs.writeFile(APPLICATIONS_PATH, JSON.stringify(applications, null, 2));
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Error submitting job application:", error);
+    return { error: "Gagal mengirimkan lamaran." };
+  }
+}
+
+export async function updateApplicationStatus(id: number, status: string) {
+  try {
+    const applications = await getJobApplications();
+    const index = applications.findIndex((app: any) => app.id === id);
+    if (index !== -1) {
+      applications[index].status = status;
+      await fs.writeFile(APPLICATIONS_PATH, JSON.stringify(applications, null, 2));
+      revalidatePath('/admin');
+      return { success: true };
+    }
+    return { error: "Lamaran tidak ditemukan." };
+  } catch (error) {
+    return { error: "Gagal memperbarui status." };
+  }
+}
+
+const SAVINGS_PATH = path.join(process.cwd(), 'src/data/savings.json');
+
+export async function getSavingsSettings() {
+  try {
+    const data = await fs.readFile(SAVINGS_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return {
+      title_id: "Layanan Buka Rekening Simpanan Partner",
+      desc_id: "Mitra Perbankan memudahkan Anda untuk membandingkan dan membuka rekening simpanan/tabungan langsung di berbagai bank terkemuka di Indonesia. Silakan pilih bank partner kami di bawah ini untuk menuju halaman pembukaan rekening resmi.",
+      banks: [
+        { "name": "Bank Central Asia (BCA)", "code": "BCA", "url": "https://www.bca.co.id/id/individu/produk/simpanan/Tahapan-BCA" },
+        { "name": "Bank Mandiri", "code": "MANDIRI", "url": "https://join.bankmandiri.co.id" },
+        { "name": "Bank Rakyat Indonesia (BRI)", "code": "BRI", "url": "https://bukarekening.bri.co.id" },
+        { "name": "Bank Negara Indonesia (BNI)", "code": "BNI", "url": "https://www.bni.co.id/id-id/individu/simpanan-kartu/buka-rekening-digital" },
+        { "name": "Bank Syariah Indonesia (BSI)", "code": "BSI", "url": "https://www.bankbsi.co.id" },
+        { "name": "Bank Tabungan Negara (BTN)", "code": "BTN", "url": "https://www.btn.co.id" },
+        { "name": "Bank CIMB Niaga", "code": "CIMB", "url": "https://www.cimbniaga.co.id" },
+        { "name": "Bank Danamon", "code": "DANAMON", "url": "https://www.danamon.co.id" },
+        { "name": "Permata Bank", "code": "PERMATA", "url": "https://www.permatabank.com" },
+        { "name": "Maybank Indonesia", "code": "MAYBANK", "url": "https://www.maybank.co.id" },
+        { "name": "Bank Mega", "code": "MEGA", "url": "https://www.bankmega.com" },
+        { "name": "OCBC Indonesia", "code": "OCBC", "url": "https://www.ocbc.id" }
+      ]
+    };
+  }
+}
+
+export async function updateSavingsSettings(settings: any) {
+  try {
+    await fs.mkdir(path.dirname(SAVINGS_PATH), { recursive: true });
+    await fs.writeFile(SAVINGS_PATH, JSON.stringify(settings, null, 2));
+    revalidatePath('/produk/simpanan');
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating savings settings:", error);
+    return { error: "Gagal memperbarui pengaturan simpanan." };
+  }
+}
+
+export async function uploadBankLogo(formData: FormData) {
+  try {
+    const file = formData.get('logo') as File;
+    if (!file || file.size === 0) return { error: "Berkas logo tidak ditemukan." };
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    const uploadDir = path.join(process.cwd(), 'public/uploads/logos');
+    await fs.mkdir(uploadDir, { recursive: true });
+
+    const ext = path.extname(file.name) || '.png';
+    const fileName = `logo_${Date.now()}${ext}`;
+    const filePath = path.join(uploadDir, fileName);
+
+    await fs.writeFile(filePath, buffer);
+    return { success: true, path: `/uploads/logos/${fileName}` };
+  } catch (error) {
+    console.error("Error uploading bank logo:", error);
+    return { error: "Gagal mengunggah berkas logo." };
+  }
+}
+
+const CREDIT_PATH = path.join(process.cwd(), 'src/data/credit-card.json');
+const LOANS_PATH = path.join(process.cwd(), 'src/data/loans.json');
+const DIGITAL_PATH = path.join(process.cwd(), 'src/data/digital-banking.json');
+
+export async function getCreditSettings() {
+  try {
+    const data = await fs.readFile(CREDIT_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return {
+      title_id: "Layanan Pengajuan Kartu Kredit Partner",
+      desc_id: "Temukan dan bandingkan berbagai produk kartu kredit terbaik dari bank mitra kami di Indonesia. Ajukan langsung di tautan resmi masing-masing bank partner di bawah ini.",
+      banks: []
+    };
+  }
+}
+
+export async function updateCreditSettings(settings: any) {
+  try {
+    await fs.mkdir(path.dirname(CREDIT_PATH), { recursive: true });
+    await fs.writeFile(CREDIT_PATH, JSON.stringify(settings, null, 2));
+    revalidatePath('/produk/kartu-kredit');
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating credit settings:", error);
+    return { error: "Gagal memperbarui pengaturan kartu kredit." };
+  }
+}
+
+export async function getLoanSettings() {
+  try {
+    const data = await fs.readFile(LOANS_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return {
+      title_id: "Layanan Pengajuan Pinjaman Partner",
+      desc_id: "Bandingkan dan pilih produk pinjaman perbankan terbaik, mulai dari KPR, KTA, hingga kredit kendaraan bermotor langsung di bank partner resmi pilihan Anda.",
+      banks: []
+    };
+  }
+}
+
+export async function updateLoanSettings(settings: any) {
+  try {
+    await fs.mkdir(path.dirname(LOANS_PATH), { recursive: true });
+    await fs.writeFile(LOANS_PATH, JSON.stringify(settings, null, 2));
+    revalidatePath('/produk/pinjaman');
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating loan settings:", error);
+    return { error: "Gagal memperbarui pengaturan pinjaman." };
+  }
+}
+
+export async function getDigitalSettings() {
+  try {
+    const data = await fs.readFile(DIGITAL_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return {
+      title_id: "Layanan Buka Akun Digital Banking Partner",
+      desc_id: "Nikmati kemudahan layanan perbankan digital generasi terbaru. Bandingkan dan buka rekening bank digital terkemuka di Indonesia secara instan di bawah ini.",
+      banks: []
+    };
+  }
+}
+
+export async function updateDigitalSettings(settings: any) {
+  try {
+    await fs.mkdir(path.dirname(DIGITAL_PATH), { recursive: true });
+    await fs.writeFile(DIGITAL_PATH, JSON.stringify(settings, null, 2));
+    revalidatePath('/produk/digital-banking');
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating digital settings:", error);
+    return { error: "Gagal memperbarui pengaturan digital banking." };
+  }
+}
+
+const CAREERS_PATH = path.join(process.cwd(), 'src/data/careers.json');
+
+export async function getCareersSettings() {
+  try {
+    const data = await fs.readFile(CAREERS_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return {
+      title_id: "Bangun Karir Bersama Kami",
+      title_en: "Build Your Career With Us",
+      desc_id: "Temukan berbagai peluang karir menarik dan tumbuh bersama salah satu mitra perbankan terpercaya di Indonesia.",
+      desc_en: "Find various attractive career opportunities and grow together with one of the trusted banking partners in Indonesia.",
+      vacancies: []
+    };
+  }
+}
+
+export async function updateCareersSettings(settings: any) {
+  try {
+    await fs.mkdir(path.dirname(CAREERS_PATH), { recursive: true });
+    await fs.writeFile(CAREERS_PATH, JSON.stringify(settings, null, 2));
+    revalidatePath('/karir');
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating careers settings:", error);
+    return { error: "Gagal memperbarui pengaturan karir." };
+  }
+}
+
+export async function uploadCareerImage(formData: FormData) {
+  try {
+    const file = formData.get('image') as File;
+    if (!file || file.size === 0) return { error: "Berkas gambar tidak ditemukan." };
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    const uploadDir = path.join(process.cwd(), 'public/uploads/careers');
+    await fs.mkdir(uploadDir, { recursive: true });
+
+    const ext = path.extname(file.name) || '.png';
+    const fileName = `career_${Date.now()}${ext}`;
+    const filePath = path.join(uploadDir, fileName);
+
+    await fs.writeFile(filePath, buffer);
+    return { success: true, path: `/uploads/careers/${fileName}` };
+  } catch (error) {
+    console.error("Error uploading career image:", error);
+    return { error: "Gagal mengunggah berkas gambar." };
+  }
+}
+
+
+
+
