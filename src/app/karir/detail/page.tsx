@@ -201,7 +201,7 @@ function JobDetailContent() {
       </div>
 
       {/* Header Info Block */}
-      <div className={styles.jobCard} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '30px', padding: '30px', marginBottom: '30px', borderLeft: '6px solid var(--primary-color, #003366)', hover: 'none', transform: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+      <div className={styles.jobCard} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '30px', padding: '30px', marginBottom: '30px', borderLeft: '6px solid var(--primary-color, #003366)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
         <div style={{ width: '90px', height: '90px', flexShrink: 0, border: '1px solid #ddd', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', overflow: 'hidden' }}>
           {jobDetails.image ? (
             <img src={jobDetails.image} alt={jobDetails.title} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
