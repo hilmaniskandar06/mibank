@@ -4,6 +4,11 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import careersDefault from '@/data/careers.json';
+import savingsDefault from '@/data/savings.json';
+import creditDefault from '@/data/credit-card.json';
+import loansDefault from '@/data/loans.json';
+import digitalDefault from '@/data/digital-banking.json';
 
 // Reusable Helper to Upload Files to Supabase Storage
 async function uploadToSupabase(file: File, folder: string): Promise<string> {
@@ -527,32 +532,11 @@ export async function getSavingsSettings() {
       .maybeSingle();
       
     if (error || !data) {
-      return {
-        title_id: "Layanan Buka Rekening Simpanan Partner",
-        desc_id: "Mitra Perbankan memudahkan Anda untuk membandingkan dan membuka rekening simpanan/tabungan langsung di berbagai bank terkemuka di Indonesia. Silakan pilih bank partner kami di bawah ini untuk menuju halaman pembukaan rekening resmi.",
-        banks: [
-          { "name": "Bank Central Asia (BCA)", "code": "BCA", "url": "https://www.bca.co.id/id/individu/produk/simpanan/Tahapan-BCA" },
-          { "name": "Bank Mandiri", "code": "MANDIRI", "url": "https://join.bankmandiri.co.id" },
-          { "name": "Bank Rakyat Indonesia (BRI)", "code": "BRI", "url": "https://bukarekening.bri.co.id" },
-          { "name": "Bank Negara Indonesia (BNI)", "code": "BNI", "url": "https://www.bni.co.id/id-id/individu/simpanan-kartu/buka-rekening-digital" },
-          { "name": "Bank Syariah Indonesia (BSI)", "code": "BSI", "url": "https://www.bankbsi.co.id" },
-          { "name": "Bank Tabungan Negara (BTN)", "code": "BTN", "url": "https://www.btn.co.id" },
-          { "name": "Bank CIMB Niaga", "code": "CIMB", "url": "https://www.cimbniaga.co.id" },
-          { "name": "Bank Danamon", "code": "DANAMON", "url": "https://www.danamon.co.id" },
-          { "name": "Permata Bank", "code": "PERMATA", "url": "https://www.permatabank.com" },
-          { "name": "Maybank Indonesia", "code": "MAYBANK", "url": "https://www.maybank.co.id" },
-          { "name": "Bank Mega", "code": "MEGA", "url": "https://www.bankmega.com" },
-          { "name": "OCBC Indonesia", "code": "OCBC", "url": "https://www.ocbc.id" }
-        ]
-      };
+      return savingsDefault;
     }
     return data;
   } catch (err) {
-    return {
-      title_id: "Layanan Buka Rekening Simpanan Partner",
-      desc_id: "Mitra Perbankan memudahkan Anda untuk membandingkan dan membuka rekening simpanan/tabungan langsung di berbagai bank terkemuka di Indonesia. Silakan pilih bank partner kami di bawah ini untuk menuju halaman pembukaan rekening resmi.",
-      banks: []
-    };
+    return savingsDefault;
   }
 }
 
@@ -598,19 +582,11 @@ export async function getCreditSettings() {
       .maybeSingle();
       
     if (error || !data) {
-      return {
-        title_id: "Layanan Pengajuan Kartu Kredit Partner",
-        desc_id: "Temukan dan bandingkan berbagai produk kartu kredit terbaik dari bank mitra kami di Indonesia. Ajukan langsung di tautan resmi masing-masing bank partner di bawah ini.",
-        banks: []
-      };
+      return creditDefault;
     }
     return data;
   } catch (err) {
-    return {
-      title_id: "Layanan Pengajuan Kartu Kredit Partner",
-      desc_id: "Temukan dan bandingkan berbagai produk kartu kredit terbaik dari bank mitra kami di Indonesia. Ajukan langsung di tautan resmi masing-masing bank partner di bawah ini.",
-      banks: []
-    };
+    return creditDefault;
   }
 }
 
@@ -644,19 +620,11 @@ export async function getLoanSettings() {
       .maybeSingle();
       
     if (error || !data) {
-      return {
-        title_id: "Layanan Pengajuan Pinjaman Partner",
-        desc_id: "Bandingkan dan pilih produk pinjaman perbankan terbaik, mulai dari KPR, KTA, hingga kredit kendaraan bermotor langsung di bank partner resmi pilihan Anda.",
-        banks: []
-      };
+      return loansDefault;
     }
     return data;
   } catch (err) {
-    return {
-      title_id: "Layanan Pengajuan Pinjaman Partner",
-      desc_id: "Bandingkan dan pilih produk pinjaman perbankan terbaik, mulai dari KPR, KTA, hingga kredit kendaraan bermotor langsung di bank partner resmi pilihan Anda.",
-      banks: []
-    };
+    return loansDefault;
   }
 }
 
@@ -690,19 +658,11 @@ export async function getDigitalSettings() {
       .maybeSingle();
       
     if (error || !data) {
-      return {
-        title_id: "Layanan Buka Akun Digital Banking Partner",
-        desc_id: "Nikmati kemudahan layanan perbankan digital generasi terbaru. Bandingkan dan buka rekening bank digital terkemuka di Indonesia secara instan di bawah ini.",
-        banks: []
-      };
+      return digitalDefault;
     }
     return data;
   } catch (err) {
-    return {
-      title_id: "Layanan Buka Akun Digital Banking Partner",
-      desc_id: "Nikmati kemudahan layanan perbankan digital generasi terbaru. Bandingkan dan buka rekening bank digital terkemuka di Indonesia secara instan di bawah ini.",
-      banks: []
-    };
+    return digitalDefault;
   }
 }
 
@@ -736,23 +696,11 @@ export async function getCareersSettings() {
       .maybeSingle();
       
     if (error || !data) {
-      return {
-        title_id: "Bangun Karir Bersama Kami",
-        title_en: "Build Your Career With Us",
-        desc_id: "Temukan berbagai peluang karir menarik dan tumbuh bersama salah satu mitra perbankan terpercaya di Indonesia.",
-        desc_en: "Find various attractive career opportunities and grow together with one of the trusted banking partners in Indonesia.",
-        vacancies: []
-      };
+      return careersDefault;
     }
     return data;
   } catch (err) {
-    return {
-      title_id: "Bangun Karir Bersama Kami",
-      title_en: "Build Your Career With Us",
-      desc_id: "Temukan berbagai peluang karir menarik dan tumbuh bersama salah satu mitra perbankan terpercaya di Indonesia.",
-      desc_en: "Find various attractive career opportunities and grow together with one of the trusted banking partners in Indonesia.",
-      vacancies: []
-    };
+    return careersDefault;
   }
 }
 
