@@ -823,7 +823,10 @@ export async function getSmileUmkmSubmissions() {
       verifiedData: sub.verified_data,
       termsAccepted: sub.terms_accepted
     }));
-
+  } catch (err) {
+    return [];
+  }
+}
 
 export async function submitSmileUmkm(formData: FormData) {
   try {
