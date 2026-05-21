@@ -1,43 +1,69 @@
 'use server';
 
-import fs from 'fs/promises';
-import path from 'path';
 import { revalidatePath } from 'next/cache';
-
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
-const PROMOS_PATH = path.join(process.cwd(), 'src/data/promos.json');
-const USERS_PATH = path.join(process.cwd(), 'src/data/users.json');
-const SUBMISSIONS_PATH = path.join(process.cwd(), 'src/data/submissions.json');
-const SETTINGS_PATH = path.join(process.cwd(), 'src/data/settings.json');
-const APPLICATIONS_PATH = path.join(process.cwd(), 'src/data/applications.json');
+// Reusable Helper to Upload Files to Supabase Storage
+async function uploadToSupabase(file: File, folder: string): Promise<string> {
+  if (!file || file.size === 0) return '';
+  try {
+    const buffer = await file.arrayBuffer();
+    const ext = file.name.split('.').pop() || 'png';
+    const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+    
+    const { data, error } = await supabase.storage
+      .from('mibank-uploads')
+      .upload(fileName, buffer, {
+        contentType: file.type,
+        upsert: true
+      });
+      
+    if (error) {
+      console.error("Gagal mengunggah file ke Supabase Storage:", error);
+      throw error;
+    }
+    
+    // Get public URL
+    const { data: publicUrlData } = supabase.storage
+      .from('mibank-uploads')
+      .getPublicUrl(fileName);
+      
+    return publicUrlData.publicUrl;
+  } catch (error) {
+    console.error("Error in uploadToSupabase:", error);
+    return '';
+  }
+}
 
-
+// ==========================================
+// 1. PROMOS ACTIONS
+// ==========================================
 export async function getPromos() {
   try {
-    const data = await fs.readFile(PROMOS_PATH, 'utf8');
-    return JSON.parse(data);
+    const { data, error } = await supabase
+      .from('promos')
+      .select('*')
+      .order('id', { ascending: true });
+      
+    if (error) {
+      console.error('Error getting promos:', error);
+      return [];
+    }
+    return data || [];
   } catch (err) {
     return [];
   }
 }
 
 export async function addPromo(formData: FormData) {
-  const data = await getPromos();
-  
   const imageFile = formData.get('promo_image') as File;
   let imagePath = "/images/promo1.png"; // Default fallback
   
   if (imageFile && imageFile.size > 0) {
     try {
-      const buffer = Buffer.from(await imageFile.arrayBuffer());
-      const fileName = `promo_${Date.now()}.png`;
-      const imagesDir = path.join(process.cwd(), 'public/images');
-      await fs.mkdir(imagesDir, { recursive: true });
-      const filePath = path.join(imagesDir, fileName);
-      await fs.writeFile(filePath, buffer);
-      imagePath = `/images/${fileName}`;
+      imagePath = await uploadToSupabase(imageFile, 'promos');
     } catch (err) {
       console.error("Gagal mengunggah gambar promo:", err);
     }
@@ -50,65 +76,80 @@ export async function addPromo(formData: FormData) {
     image: imagePath
   };
   
-  data.push(newPromo);
-  await fs.writeFile(PROMOS_PATH, JSON.stringify(data, null, 2));
+  const { error } = await supabase.from('promos').insert(newPromo);
+  if (error) {
+    console.error('Error adding promo:', error);
+  }
   revalidatePath('/');
 }
 
 export async function deletePromo(id: number) {
-  let data = await getPromos();
-  data = data.filter((p: any) => p.id !== id);
-  await fs.writeFile(PROMOS_PATH, JSON.stringify(data, null, 2));
+  const { error } = await supabase.from('promos').delete().eq('id', id);
+  if (error) {
+    console.error('Error deleting promo:', error);
+  }
   revalidatePath('/');
 }
 
 export async function updatePromo(formData: FormData) {
-  const data = await getPromos();
   const id = Number(formData.get('id'));
   
-  const promoIndex = data.findIndex((p: any) => p.id === id);
-  if (promoIndex === -1) return { error: 'Promo not found' };
+  // Get current promo to check existing image
+  const { data: promo, error: fetchErr } = await supabase
+    .from('promos')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+    
+  if (fetchErr || !promo) return { error: 'Promo not found' };
 
-  let imagePath = data[promoIndex].image;
+  let imagePath = promo.image;
   const imageFile = formData.get('promo_image') as File;
   
   if (imageFile && imageFile.size > 0) {
     try {
-      const buffer = Buffer.from(await imageFile.arrayBuffer());
-      const fileName = `promo_${Date.now()}.png`;
-      const imagesDir = path.join(process.cwd(), 'public/images');
-      await fs.writeFile(path.join(imagesDir, fileName), buffer);
-      imagePath = `/images/${fileName}`;
+      imagePath = await uploadToSupabase(imageFile, 'promos');
     } catch (err) {
       console.error("Gagal mengunggah gambar promo:", err);
     }
   }
 
-  data[promoIndex] = {
-    ...data[promoIndex],
-    title_id: formData.get('title_id') as string,
-    desc_id: formData.get('desc_id') as string,
-    image: imagePath
-  };
-  
-  await fs.writeFile(PROMOS_PATH, JSON.stringify(data, null, 2));
+  const { error } = await supabase
+    .from('promos')
+    .update({
+      title_id: formData.get('title_id') as string,
+      desc_id: formData.get('desc_id') as string,
+      image: imagePath
+    })
+    .eq('id', id);
+    
+  if (error) {
+    console.error('Error updating promo:', error);
+    return { error: 'Gagal memperbarui promo' };
+  }
   revalidatePath('/');
   return { success: true };
 }
 
-// User Actions
+// ==========================================
+// 2. USERS ACTIONS (AUTHENTICATION)
+// ==========================================
 export async function getUsers() {
   try {
-    const data = await fs.readFile(USERS_PATH, 'utf8');
-    return JSON.parse(data);
+    const { data, error } = await supabase.from('users').select('*');
+    if (error) {
+      console.error('Error getting users:', error);
+      return [];
+    }
+    return data || [];
   } catch (err) {
     return [];
   }
 }
 
 export async function adminAddUser(formData: FormData) {
-  const users = await getUsers();
   const email = formData.get('email') as string;
+  const users = await getUsers();
 
   if (users.find((u: any) => u.email === email)) {
     return { error: 'Email already registered' };
@@ -123,38 +164,43 @@ export async function adminAddUser(formData: FormData) {
     role: formData.get('role') as string || 'user'
   };
 
-  users.push(newUser);
-  await fs.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
+  const { error } = await supabase.from('users').insert(newUser);
+  if (error) {
+    console.error('Error adding user:', error);
+    return { error: 'Gagal menambahkan user' };
+  }
   revalidatePath('/admin');
   return { success: true };
 }
 
 export async function adminUpdateUserRole(formData: FormData) {
-  const users = await getUsers();
   const id = formData.get('id') as string;
   const newRole = formData.get('role') as string;
 
-  const userIndex = users.findIndex((u: any) => u.id === id);
-  if (userIndex !== -1) {
-    users[userIndex].role = newRole;
-    await fs.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
-    revalidatePath('/admin');
-    return { success: true };
+  const { error } = await supabase
+    .from('users')
+    .update({ role: newRole })
+    .eq('id', id);
+    
+  if (error) {
+    console.error('Error updating user role:', error);
+    return { error: 'User not found' };
   }
-  return { error: 'User not found' };
+  revalidatePath('/admin');
+  return { success: true };
 }
 
 export async function adminDeleteUser(id: string) {
-  let users = await getUsers();
-  users = users.filter((u: any) => u.id !== id);
-  await fs.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
+  const { error } = await supabase.from('users').delete().eq('id', id);
+  if (error) {
+    console.error('Error deleting user:', error);
+  }
   revalidatePath('/admin');
 }
 
-
 export async function registerUser(formData: FormData) {
-  const users = await getUsers();
   const email = formData.get('email') as string;
+  const users = await getUsers();
 
   if (users.find((u: any) => u.email === email)) {
     return { error: 'Email already registered' };
@@ -169,23 +215,26 @@ export async function registerUser(formData: FormData) {
     role: 'user'
   };
 
-  users.push(newUser);
-  try {
-    await fs.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
-  } catch (error) {
-    console.warn("Could not write to users.json (likely in production/read-only environment).");
+  const { error } = await supabase.from('users').insert(newUser);
+  if (error) {
+    console.error("Gagal mendaftarkan user:", error);
+    return { error: 'Gagal mendaftar' };
   }
   redirect('/login');
 }
 
 export async function loginUser(formData: FormData) {
-  const users = await getUsers();
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
-  const user = users.find((u: any) => u.email === email && u.password === password);
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', email)
+    .eq('password', password)
+    .maybeSingle();
 
-  if (!user) {
+  if (error || !user) {
     return { error: 'Invalid email or password' };
   }
 
@@ -217,18 +266,27 @@ export async function getSession() {
   return JSON.parse(session.value);
 }
 
-// Submissions Actions
+// ==========================================
+// 3. SUBMISSIONS ACTIONS (HUBUNGI KAMI)
+// ==========================================
 export async function getSubmissions() {
   try {
-    const data = await fs.readFile(SUBMISSIONS_PATH, 'utf8');
-    return JSON.parse(data);
+    const { data, error } = await supabase
+      .from('submissions')
+      .select('*')
+      .order('id', { ascending: false });
+      
+    if (error) {
+      console.error('Error getting submissions:', error);
+      return [];
+    }
+    return data || [];
   } catch (err) {
     return [];
   }
 }
 
 export async function submitForm(formData: FormData) {
-  const data = await getSubmissions();
   const newSubmission = {
     id: Date.now(),
     name: formData.get('name') as string,
@@ -239,16 +297,34 @@ export async function submitForm(formData: FormData) {
     date: new Date().toLocaleDateString('id-ID')
   };
   
-  data.push(newSubmission);
-  await fs.writeFile(SUBMISSIONS_PATH, JSON.stringify(data, null, 2));
+  const { error } = await supabase.from('submissions').insert(newSubmission);
+  if (error) {
+    console.error('Error submitting form:', error);
+    return { error: 'Gagal mengirim formulir' };
+  }
   return { success: true };
 }
 
-// Settings Actions
+// ==========================================
+// 4. SETTINGS ACTIONS (GLOBAL WEB SETTINGS)
+// ==========================================
 export async function getSettings() {
   try {
-    const data = await fs.readFile(SETTINGS_PATH, 'utf8');
-    return JSON.parse(data);
+    const { data, error } = await supabase
+      .from('settings')
+      .select('*')
+      .eq('id', 'global')
+      .maybeSingle();
+      
+    if (error || !data) {
+      return {
+        hero: { title_id: "", desc_id: "" },
+        about: { visi_id: "", misi_id: "" },
+        images: { hero: "/images/hero.png", about: "/images/company.jpg" },
+        contact: { address: "", phone: "", email: "" }
+      };
+    }
+    return data;
   } catch (err) {
     return {
       hero: { title_id: "", desc_id: "" },
@@ -262,21 +338,13 @@ export async function getSettings() {
 export async function updateSettings(formData: FormData) {
   try {
     const currentSettings = await getSettings();
-    const imagesDir = path.join(process.cwd(), 'public/images');
-    
-    // Ensure directory exists
-    await fs.mkdir(imagesDir, { recursive: true });
     
     // Handle Hero Image Upload
     const heroImageFile = formData.get('hero_image') as File;
     let heroImagePath = currentSettings.images?.hero || "/images/hero.png";
     
     if (heroImageFile && heroImageFile.size > 0) {
-      const buffer = Buffer.from(await heroImageFile.arrayBuffer());
-      const fileName = `hero_${Date.now()}.png`;
-      const filePath = path.join(imagesDir, fileName);
-      await fs.writeFile(filePath, buffer);
-      heroImagePath = `/images/${fileName}`;
+      heroImagePath = await uploadToSupabase(heroImageFile, 'settings');
     }
 
     // Handle About Image Upload
@@ -284,14 +352,11 @@ export async function updateSettings(formData: FormData) {
     let aboutImagePath = currentSettings.images?.about || "/images/company.jpg";
     
     if (aboutImageFile && aboutImageFile.size > 0) {
-      const buffer = Buffer.from(await aboutImageFile.arrayBuffer());
-      const fileName = `about_${Date.now()}.png`;
-      const filePath = path.join(imagesDir, fileName);
-      await fs.writeFile(filePath, buffer);
-      aboutImagePath = `/images/${fileName}`;
+      aboutImagePath = await uploadToSupabase(aboutImageFile, 'settings');
     }
 
     const settings = {
+      id: 'global',
       hero: {
         title_id: formData.get('hero_title_id') as string,
         desc_id: formData.get('hero_desc_id') as string,
@@ -311,7 +376,9 @@ export async function updateSettings(formData: FormData) {
       }
     };
     
-    await fs.writeFile(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+    const { error } = await supabase.from('settings').upsert(settings);
+    if (error) throw error;
+    
     revalidatePath('/');
     return { success: true };
   } catch (error) {
@@ -320,10 +387,57 @@ export async function updateSettings(formData: FormData) {
   }
 }
 
+// ==========================================
+// 5. CAREER APPLICATIONS ACTIONS
+// ==========================================
+function mapAppToCamel(dbApp: any) {
+  if (!dbApp) return null;
+  return {
+    id: dbApp.id,
+    date: dbApp.date,
+    status: dbApp.status,
+    position: dbApp.position,
+    name: dbApp.name,
+    nik: dbApp.nik,
+    birthPlace: dbApp.birth_place,
+    birthDate: dbApp.birth_date,
+    gender: dbApp.gender,
+    religion: dbApp.religion,
+    maritalStatus: dbApp.marital_status,
+    address: dbApp.address,
+    phone: dbApp.phone,
+    phoneAlt: dbApp.phone_alt,
+    email: dbApp.email,
+    eduUniv: dbApp.edu_univ,
+    eduFaculty: dbApp.edu_faculty,
+    eduMajor: dbApp.edu_major,
+    eduYears: dbApp.edu_years,
+    eduGpa: dbApp.edu_gpa,
+    achievements: dbApp.achievements,
+    experience: dbApp.experience,
+    willingPlacement: dbApp.willing_placement,
+    noFamilyRelation: dbApp.no_family_relation,
+    motivation: dbApp.motivation,
+    cv: dbApp.cv,
+    ktpScan: dbApp.ktp_scan,
+    ijazahScan: dbApp.ijazah_scan,
+    pasFoto: dbApp.pas_foto,
+    fotoBadan: dbApp.foto_badan
+  };
+}
+
 export async function getJobApplications() {
   try {
-    const data = await fs.readFile(APPLICATIONS_PATH, 'utf8');
-    return JSON.parse(data);
+    const { data, error } = await supabase
+      .from('applications')
+      .select('*')
+      .order('id', { ascending: false });
+      
+    if (error) {
+      console.error('Error getting applications:', error);
+      return [];
+    }
+    return (data || []).map(mapAppToCamel);
   } catch (err) {
     return [];
   }
@@ -331,77 +445,53 @@ export async function getJobApplications() {
 
 export async function submitJobApplication(formData: FormData) {
   try {
-    const applications = await getJobApplications();
-    
-    // Helper to upload files safely
-    const uploadFile = async (fileKey: string, prefix: string) => {
-      const file = formData.get(fileKey) as File;
-      if (file && file.size > 0) {
-        const buffer = Buffer.from(await file.arrayBuffer());
-        const ext = path.extname(file.name) || '.pdf';
-        const fileName = `${prefix}_${Date.now()}${ext}`;
-        const dir = path.join(process.cwd(), 'public/uploads/career');
-        await fs.mkdir(dir, { recursive: true });
-        await fs.writeFile(path.join(dir, fileName), buffer);
-        return `/uploads/career/${fileName}`;
-      }
-      return "";
-    };
+    const cvFile = formData.get('cv') as File;
+    const ktpFile = formData.get('ktpScan') as File;
+    const ijazahFile = formData.get('ijazahScan') as File;
+    const pasFotoFile = formData.get('pasFoto') as File;
+    const fotoBadanFile = formData.get('fotoBadan') as File;
 
-    const cvPath = await uploadFile('cv', 'cv');
-    const ktpPath = await uploadFile('ktpScan', 'ktp');
-    const ijazahPath = await uploadFile('ijazahScan', 'ijazah');
-    const pasFotoPath = await uploadFile('pasFoto', 'pasfoto');
-    const fotoBadanPath = await uploadFile('fotoBadan', 'fotobadan');
+    const cvPath = cvFile && cvFile.size > 0 ? await uploadToSupabase(cvFile, 'career/cv') : '';
+    const ktpPath = ktpFile && ktpFile.size > 0 ? await uploadToSupabase(ktpFile, 'career/ktp') : '';
+    const ijazahPath = ijazahFile && ijazahFile.size > 0 ? await uploadToSupabase(ijazahFile, 'career/ijazah') : '';
+    const pasFotoPath = pasFotoFile && pasFotoFile.size > 0 ? await uploadToSupabase(pasFotoFile, 'career/pasfoto') : '';
+    const fotoBadanPath = fotoBadanFile && fotoBadanFile.size > 0 ? await uploadToSupabase(fotoBadanFile, 'career/fotobadan') : '';
 
     const newApplication = {
       id: Date.now(),
       date: new Date().toLocaleDateString('id-ID'),
       status: 'Pending',
       position: formData.get('position') as string,
-      
-      // Personal Data
       name: formData.get('name') as string,
       nik: formData.get('nik') as string,
-      birthPlace: formData.get('birthPlace') as string,
-      birthDate: formData.get('birthDate') as string,
+      birth_place: formData.get('birthPlace') as string,
+      birth_date: formData.get('birthDate') as string,
       gender: formData.get('gender') as string,
       religion: formData.get('religion') as string,
-      maritalStatus: formData.get('maritalStatus') as string,
+      marital_status: formData.get('maritalStatus') as string,
       address: formData.get('address') as string,
-      
-      // Contacts
       phone: formData.get('phone') as string,
-      phoneAlt: formData.get('phoneAlt') as string,
+      phone_alt: formData.get('phoneAlt') as string,
       email: formData.get('email') as string,
-      
-      // Education
-      eduUniv: formData.get('eduUniv') as string,
-      eduFaculty: formData.get('eduFaculty') as string,
-      eduMajor: formData.get('eduMajor') as string,
-      eduYears: formData.get('eduYears') as string,
-      eduGpa: formData.get('eduGpa') as string,
-      
-      // Achievements & Experience
+      edu_univ: formData.get('eduUniv') as string,
+      edu_faculty: formData.get('eduFaculty') as string,
+      edu_major: formData.get('eduMajor') as string,
+      edu_years: formData.get('eduYears') as string,
+      edu_gpa: formData.get('eduGpa') as string,
       achievements: formData.get('achievements') as string,
       experience: formData.get('experience') as string,
-      
-      // Statements
-      willingPlacement: formData.get('willingPlacement') as string,
-      noFamilyRelation: formData.get('noFamilyRelation') as string,
+      willing_placement: formData.get('willingPlacement') as string,
+      no_family_relation: formData.get('noFamilyRelation') as string,
       motivation: formData.get('motivation') as string,
-      
-      // Files
       cv: cvPath,
-      ktpScan: ktpPath,
-      ijazahScan: ijazahPath,
-      pasFoto: pasFotoPath,
-      fotoBadan: fotoBadanPath
+      ktp_scan: ktpPath,
+      ijazah_scan: ijazahPath,
+      pas_foto: pasFotoPath,
+      foto_badan: fotoBadanPath
     };
 
-    applications.push(newApplication);
-    await fs.mkdir(path.dirname(APPLICATIONS_PATH), { recursive: true });
-    await fs.writeFile(APPLICATIONS_PATH, JSON.stringify(applications, null, 2));
+    const { error } = await supabase.from('applications').insert(newApplication);
+    if (error) throw error;
     
     return { success: true };
   } catch (error) {
@@ -412,52 +502,69 @@ export async function submitJobApplication(formData: FormData) {
 
 export async function updateApplicationStatus(id: number, status: string) {
   try {
-    const applications = await getJobApplications();
-    const index = applications.findIndex((app: any) => app.id === id);
-    if (index !== -1) {
-      applications[index].status = status;
-      await fs.writeFile(APPLICATIONS_PATH, JSON.stringify(applications, null, 2));
-      revalidatePath('/admin');
-      return { success: true };
-    }
-    return { error: "Lamaran tidak ditemukan." };
+    const { error } = await supabase
+      .from('applications')
+      .update({ status })
+      .eq('id', id);
+      
+    if (error) throw error;
+    revalidatePath('/admin');
+    return { success: true };
   } catch (error) {
     return { error: "Gagal memperbarui status." };
   }
 }
 
-const SAVINGS_PATH = path.join(process.cwd(), 'src/data/savings.json');
-
+// ==========================================
+// 6. SAVINGS PARTNERS ACTIONS
+// ==========================================
 export async function getSavingsSettings() {
   try {
-    const data = await fs.readFile(SAVINGS_PATH, 'utf8');
-    return JSON.parse(data);
+    const { data, error } = await supabase
+      .from('savings_settings')
+      .select('*')
+      .eq('id', 'global')
+      .maybeSingle();
+      
+    if (error || !data) {
+      return {
+        title_id: "Layanan Buka Rekening Simpanan Partner",
+        desc_id: "Mitra Perbankan memudahkan Anda untuk membandingkan dan membuka rekening simpanan/tabungan langsung di berbagai bank terkemuka di Indonesia. Silakan pilih bank partner kami di bawah ini untuk menuju halaman pembukaan rekening resmi.",
+        banks: [
+          { "name": "Bank Central Asia (BCA)", "code": "BCA", "url": "https://www.bca.co.id/id/individu/produk/simpanan/Tahapan-BCA" },
+          { "name": "Bank Mandiri", "code": "MANDIRI", "url": "https://join.bankmandiri.co.id" },
+          { "name": "Bank Rakyat Indonesia (BRI)", "code": "BRI", "url": "https://bukarekening.bri.co.id" },
+          { "name": "Bank Negara Indonesia (BNI)", "code": "BNI", "url": "https://www.bni.co.id/id-id/individu/simpanan-kartu/buka-rekening-digital" },
+          { "name": "Bank Syariah Indonesia (BSI)", "code": "BSI", "url": "https://www.bankbsi.co.id" },
+          { "name": "Bank Tabungan Negara (BTN)", "code": "BTN", "url": "https://www.btn.co.id" },
+          { "name": "Bank CIMB Niaga", "code": "CIMB", "url": "https://www.cimbniaga.co.id" },
+          { "name": "Bank Danamon", "code": "DANAMON", "url": "https://www.danamon.co.id" },
+          { "name": "Permata Bank", "code": "PERMATA", "url": "https://www.permatabank.com" },
+          { "name": "Maybank Indonesia", "code": "MAYBANK", "url": "https://www.maybank.co.id" },
+          { "name": "Bank Mega", "code": "MEGA", "url": "https://www.bankmega.com" },
+          { "name": "OCBC Indonesia", "code": "OCBC", "url": "https://www.ocbc.id" }
+        ]
+      };
+    }
+    return data;
   } catch (err) {
     return {
       title_id: "Layanan Buka Rekening Simpanan Partner",
       desc_id: "Mitra Perbankan memudahkan Anda untuk membandingkan dan membuka rekening simpanan/tabungan langsung di berbagai bank terkemuka di Indonesia. Silakan pilih bank partner kami di bawah ini untuk menuju halaman pembukaan rekening resmi.",
-      banks: [
-        { "name": "Bank Central Asia (BCA)", "code": "BCA", "url": "https://www.bca.co.id/id/individu/produk/simpanan/Tahapan-BCA" },
-        { "name": "Bank Mandiri", "code": "MANDIRI", "url": "https://join.bankmandiri.co.id" },
-        { "name": "Bank Rakyat Indonesia (BRI)", "code": "BRI", "url": "https://bukarekening.bri.co.id" },
-        { "name": "Bank Negara Indonesia (BNI)", "code": "BNI", "url": "https://www.bni.co.id/id-id/individu/simpanan-kartu/buka-rekening-digital" },
-        { "name": "Bank Syariah Indonesia (BSI)", "code": "BSI", "url": "https://www.bankbsi.co.id" },
-        { "name": "Bank Tabungan Negara (BTN)", "code": "BTN", "url": "https://www.btn.co.id" },
-        { "name": "Bank CIMB Niaga", "code": "CIMB", "url": "https://www.cimbniaga.co.id" },
-        { "name": "Bank Danamon", "code": "DANAMON", "url": "https://www.danamon.co.id" },
-        { "name": "Permata Bank", "code": "PERMATA", "url": "https://www.permatabank.com" },
-        { "name": "Maybank Indonesia", "code": "MAYBANK", "url": "https://www.maybank.co.id" },
-        { "name": "Bank Mega", "code": "MEGA", "url": "https://www.bankmega.com" },
-        { "name": "OCBC Indonesia", "code": "OCBC", "url": "https://www.ocbc.id" }
-      ]
+      banks: []
     };
   }
 }
 
 export async function updateSavingsSettings(settings: any) {
   try {
-    await fs.mkdir(path.dirname(SAVINGS_PATH), { recursive: true });
-    await fs.writeFile(SAVINGS_PATH, JSON.stringify(settings, null, 2));
+    const { error } = await supabase.from('savings_settings').upsert({
+      id: 'global',
+      title_id: settings.title_id,
+      desc_id: settings.desc_id,
+      banks: settings.banks
+    });
+    if (error) throw error;
     revalidatePath('/produk/simpanan');
     revalidatePath('/admin');
     return { success: true };
@@ -471,33 +578,33 @@ export async function uploadBankLogo(formData: FormData) {
   try {
     const file = formData.get('logo') as File;
     if (!file || file.size === 0) return { error: "Berkas logo tidak ditemukan." };
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    const uploadDir = path.join(process.cwd(), 'public/uploads/logos');
-    await fs.mkdir(uploadDir, { recursive: true });
-
-    const ext = path.extname(file.name) || '.png';
-    const fileName = `logo_${Date.now()}${ext}`;
-    const filePath = path.join(uploadDir, fileName);
-
-    await fs.writeFile(filePath, buffer);
-    return { success: true, path: `/uploads/logos/${fileName}` };
+    const logoPath = await uploadToSupabase(file, 'logos');
+    return { success: true, path: logoPath };
   } catch (error) {
     console.error("Error uploading bank logo:", error);
     return { error: "Gagal mengunggah berkas logo." };
   }
 }
 
-const CREDIT_PATH = path.join(process.cwd(), 'src/data/credit-card.json');
-const LOANS_PATH = path.join(process.cwd(), 'src/data/loans.json');
-const DIGITAL_PATH = path.join(process.cwd(), 'src/data/digital-banking.json');
-
+// ==========================================
+// 7. CREDIT CARD PARTNERS ACTIONS
+// ==========================================
 export async function getCreditSettings() {
   try {
-    const data = await fs.readFile(CREDIT_PATH, 'utf8');
-    return JSON.parse(data);
+    const { data, error } = await supabase
+      .from('credit_settings')
+      .select('*')
+      .eq('id', 'global')
+      .maybeSingle();
+      
+    if (error || !data) {
+      return {
+        title_id: "Layanan Pengajuan Kartu Kredit Partner",
+        desc_id: "Temukan dan bandingkan berbagai produk kartu kredit terbaik dari bank mitra kami di Indonesia. Ajukan langsung di tautan resmi masing-masing bank partner di bawah ini.",
+        banks: []
+      };
+    }
+    return data;
   } catch (err) {
     return {
       title_id: "Layanan Pengajuan Kartu Kredit Partner",
@@ -509,8 +616,13 @@ export async function getCreditSettings() {
 
 export async function updateCreditSettings(settings: any) {
   try {
-    await fs.mkdir(path.dirname(CREDIT_PATH), { recursive: true });
-    await fs.writeFile(CREDIT_PATH, JSON.stringify(settings, null, 2));
+    const { error } = await supabase.from('credit_settings').upsert({
+      id: 'global',
+      title_id: settings.title_id,
+      desc_id: settings.desc_id,
+      banks: settings.banks
+    });
+    if (error) throw error;
     revalidatePath('/produk/kartu-kredit');
     revalidatePath('/admin');
     return { success: true };
@@ -520,10 +632,25 @@ export async function updateCreditSettings(settings: any) {
   }
 }
 
+// ==========================================
+// 8. LOANS PARTNERS ACTIONS
+// ==========================================
 export async function getLoanSettings() {
   try {
-    const data = await fs.readFile(LOANS_PATH, 'utf8');
-    return JSON.parse(data);
+    const { data, error } = await supabase
+      .from('loan_settings')
+      .select('*')
+      .eq('id', 'global')
+      .maybeSingle();
+      
+    if (error || !data) {
+      return {
+        title_id: "Layanan Pengajuan Pinjaman Partner",
+        desc_id: "Bandingkan dan pilih produk pinjaman perbankan terbaik, mulai dari KPR, KTA, hingga kredit kendaraan bermotor langsung di bank partner resmi pilihan Anda.",
+        banks: []
+      };
+    }
+    return data;
   } catch (err) {
     return {
       title_id: "Layanan Pengajuan Pinjaman Partner",
@@ -535,8 +662,13 @@ export async function getLoanSettings() {
 
 export async function updateLoanSettings(settings: any) {
   try {
-    await fs.mkdir(path.dirname(LOANS_PATH), { recursive: true });
-    await fs.writeFile(LOANS_PATH, JSON.stringify(settings, null, 2));
+    const { error } = await supabase.from('loan_settings').upsert({
+      id: 'global',
+      title_id: settings.title_id,
+      desc_id: settings.desc_id,
+      banks: settings.banks
+    });
+    if (error) throw error;
     revalidatePath('/produk/pinjaman');
     revalidatePath('/admin');
     return { success: true };
@@ -546,10 +678,25 @@ export async function updateLoanSettings(settings: any) {
   }
 }
 
+// ==========================================
+// 9. DIGITAL BANKING PARTNERS ACTIONS
+// ==========================================
 export async function getDigitalSettings() {
   try {
-    const data = await fs.readFile(DIGITAL_PATH, 'utf8');
-    return JSON.parse(data);
+    const { data, error } = await supabase
+      .from('digital_settings')
+      .select('*')
+      .eq('id', 'global')
+      .maybeSingle();
+      
+    if (error || !data) {
+      return {
+        title_id: "Layanan Buka Akun Digital Banking Partner",
+        desc_id: "Nikmati kemudahan layanan perbankan digital generasi terbaru. Bandingkan dan buka rekening bank digital terkemuka di Indonesia secara instan di bawah ini.",
+        banks: []
+      };
+    }
+    return data;
   } catch (err) {
     return {
       title_id: "Layanan Buka Akun Digital Banking Partner",
@@ -561,8 +708,13 @@ export async function getDigitalSettings() {
 
 export async function updateDigitalSettings(settings: any) {
   try {
-    await fs.mkdir(path.dirname(DIGITAL_PATH), { recursive: true });
-    await fs.writeFile(DIGITAL_PATH, JSON.stringify(settings, null, 2));
+    const { error } = await supabase.from('digital_settings').upsert({
+      id: 'global',
+      title_id: settings.title_id,
+      desc_id: settings.desc_id,
+      banks: settings.banks
+    });
+    if (error) throw error;
     revalidatePath('/produk/digital-banking');
     revalidatePath('/admin');
     return { success: true };
@@ -572,12 +724,27 @@ export async function updateDigitalSettings(settings: any) {
   }
 }
 
-const CAREERS_PATH = path.join(process.cwd(), 'src/data/careers.json');
-
+// ==========================================
+// 10. CAREERS VACANCIES ACTIONS
+// ==========================================
 export async function getCareersSettings() {
   try {
-    const data = await fs.readFile(CAREERS_PATH, 'utf8');
-    return JSON.parse(data);
+    const { data, error } = await supabase
+      .from('careers_settings')
+      .select('*')
+      .eq('id', 'global')
+      .maybeSingle();
+      
+    if (error || !data) {
+      return {
+        title_id: "Bangun Karir Bersama Kami",
+        title_en: "Build Your Career With Us",
+        desc_id: "Temukan berbagai peluang karir menarik dan tumbuh bersama salah satu mitra perbankan terpercaya di Indonesia.",
+        desc_en: "Find various attractive career opportunities and grow together with one of the trusted banking partners in Indonesia.",
+        vacancies: []
+      };
+    }
+    return data;
   } catch (err) {
     return {
       title_id: "Bangun Karir Bersama Kami",
@@ -591,8 +758,15 @@ export async function getCareersSettings() {
 
 export async function updateCareersSettings(settings: any) {
   try {
-    await fs.mkdir(path.dirname(CAREERS_PATH), { recursive: true });
-    await fs.writeFile(CAREERS_PATH, JSON.stringify(settings, null, 2));
+    const { error } = await supabase.from('careers_settings').upsert({
+      id: 'global',
+      title_id: settings.title_id,
+      title_en: settings.title_en,
+      desc_id: settings.desc_id,
+      desc_en: settings.desc_en,
+      vacancies: settings.vacancies
+    });
+    if (error) throw error;
     revalidatePath('/karir');
     revalidatePath('/admin');
     return { success: true };
@@ -606,91 +780,84 @@ export async function uploadCareerImage(formData: FormData) {
   try {
     const file = formData.get('image') as File;
     if (!file || file.size === 0) return { error: "Berkas gambar tidak ditemukan." };
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    const uploadDir = path.join(process.cwd(), 'public/uploads/careers');
-    await fs.mkdir(uploadDir, { recursive: true });
-
-    const ext = path.extname(file.name) || '.png';
-    const fileName = `career_${Date.now()}${ext}`;
-    const filePath = path.join(uploadDir, fileName);
-
-    await fs.writeFile(filePath, buffer);
-    return { success: true, path: `/uploads/careers/${fileName}` };
+    const imagePath = await uploadToSupabase(file, 'careers');
+    return { success: true, path: imagePath };
   } catch (error) {
     console.error("Error uploading career image:", error);
     return { error: "Gagal mengunggah berkas gambar." };
   }
 }
 
-// Smile UMKM Submissions
-const SMILE_UMKM_PATH = path.join(process.cwd(), 'src/data/smile-umkm-submissions.json');
-
+// ==========================================
+// 11. SMILE UMKM SUBMISSIONS ACTIONS
+// ==========================================
 export async function getSmileUmkmSubmissions() {
   try {
-    const data = await fs.readFile(SMILE_UMKM_PATH, 'utf8');
-    return JSON.parse(data);
-  } catch (err) {
-    return [];
-  }
-}
+    const { data, error } = await supabase
+      .from('smile_umkm_submissions')
+      .select('*')
+      .order('id', { ascending: false });
+      
+    if (error) {
+      console.error('Error getting UMKM submissions:', error);
+      return [];
+    }
+    return (data || []).map((sub: any) => ({
+      id: sub.id,
+      date: sub.date,
+      status: sub.status,
+      name: sub.name,
+      address: sub.address,
+      phone: sub.phone,
+      email: sub.email,
+      businessName: sub.business_name,
+      businessActivity: sub.business_activity,
+      businessAddress: sub.business_address,
+      frontPhoto: sub.front_photo,
+      productPhoto: sub.product_photo,
+      paymentMethod: sub.payment_method,
+      bank: sub.bank,
+      nmid: sub.nmid,
+      monthlyRevenue: Number(sub.monthly_revenue),
+      monthlyBalance: Number(sub.monthly_balance),
+      verifiedData: sub.verified_data,
+      termsAccepted: sub.terms_accepted
+    }));
+
 
 export async function submitSmileUmkm(formData: FormData) {
   try {
-    const submissions = await getSmileUmkmSubmissions();
-    const uploadDir = path.join(process.cwd(), 'public/uploads/smile-umkm');
-    await fs.mkdir(uploadDir, { recursive: true });
+    const frontPhotoFile = formData.get('frontPhoto') as File;
+    const productPhotoFile = formData.get('productPhoto') as File;
 
-    const uploadFile = async (fileKey: string) => {
-      const file = formData.get(fileKey) as File;
-      if (file && file.size > 0) {
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        const ext = path.extname(file.name) || '.png';
-        const fileName = `${fileKey}_${Date.now()}${ext}`;
-        await fs.writeFile(path.join(uploadDir, fileName), buffer);
-        return `/uploads/smile-umkm/${fileName}`;
-      }
-      return '';
-    };
-
-    const frontPhotoPath = await uploadFile('frontPhoto');
-    const productPhotoPath = await uploadFile('productPhoto');
+    const frontPhotoPath = frontPhotoFile && frontPhotoFile.size > 0 ? await uploadToSupabase(frontPhotoFile, 'smile-umkm/front') : '';
+    const productPhotoPath = productPhotoFile && productPhotoFile.size > 0 ? await uploadToSupabase(productPhotoFile, 'smile-umkm/product') : '';
 
     const newSubmission = {
       id: Date.now(),
       date: new Date().toLocaleDateString('id-ID'),
       status: 'Pending',
-      
-      // Applicant data
       name: formData.get('name') as string,
       address: formData.get('address') as string,
       phone: formData.get('phone') as string,
       email: formData.get('email') as string,
-      
-      // Business data
-      businessName: formData.get('businessName') as string,
-      businessActivity: formData.get('businessActivity') as string,
-      businessAddress: formData.get('businessAddress') as string,
-      frontPhoto: frontPhotoPath,
-      productPhoto: productPhotoPath,
-      
-      // Payment data
-      paymentMethod: formData.get('paymentMethod') as string,
+      business_name: formData.get('businessName') as string,
+      business_activity: formData.get('businessActivity') as string,
+      business_address: formData.get('businessAddress') as string,
+      front_photo: frontPhotoPath,
+      product_photo: productPhotoPath,
+      payment_method: formData.get('paymentMethod') as string,
       bank: formData.get('bank') as string,
       nmid: formData.get('nmid') as string,
-      monthlyRevenue: Number(formData.get('monthlyRevenue')),
-      monthlyBalance: Number(formData.get('monthlyBalance')),
-      
-      // Verification
-      verifiedData: formData.get('verifiedData') === 'on',
-      termsAccepted: formData.get('termsAccepted') === 'on'
+      monthly_revenue: Number(formData.get('monthlyRevenue')) || 0,
+      monthly_balance: Number(formData.get('monthlyBalance')) || 0,
+      verified_data: formData.get('verifiedData') === 'on',
+      terms_accepted: formData.get('termsAccepted') === 'on'
     };
 
-    submissions.push(newSubmission);
-    await fs.writeFile(SMILE_UMKM_PATH, JSON.stringify(submissions, null, 2));
+    const { error } = await supabase.from('smile_umkm_submissions').insert(newSubmission);
+    if (error) throw error;
+    
     return { success: true };
   } catch (error) {
     console.error("Error submitting Smile UMKM:", error);
@@ -700,20 +867,15 @@ export async function submitSmileUmkm(formData: FormData) {
 
 export async function updateSmileUmkmStatus(id: number, status: string) {
   try {
-    const submissions = await getSmileUmkmSubmissions();
-    const index = submissions.findIndex((sub: any) => sub.id === id);
-    if (index !== -1) {
-      submissions[index].status = status;
-      await fs.writeFile(SMILE_UMKM_PATH, JSON.stringify(submissions, null, 2));
-      revalidatePath('/admin');
-      return { success: true };
-    }
-    return { error: "Pengajuan tidak ditemukan." };
+    const { error } = await supabase
+      .from('smile_umkm_submissions')
+      .update({ status })
+      .eq('id', id);
+      
+    if (error) throw error;
+    revalidatePath('/admin');
+    return { success: true };
   } catch (error) {
     return { error: "Gagal memperbarui status pengajuan." };
   }
 }
-
-
-
-
